@@ -90,6 +90,20 @@ static int my_read(struct file *file, char __user *user_buffer, size_t size, lof
 注２：struct inodeには、対応するキャラクタデバイス struct cdev　へのポインタがある  
 
 
+# キャラクタデバイスの登録と削除
+デバイスの登録と削除は、メジャー番号とマイナー番号を指定することにより行われる。  
+これらのデバイス識別子は、dev_t 型によって保持され、MKDEVマクロを使って生成できる。
 
+デバイス識別子を静的に割り当てるには、`register_chrdev_region`　または`unresigrer_chrdev_region`を使用する。
+
+```
+#include <linux/fs.h>
+
+int register_chrdev_region(dev_t first, unsigned int count, char *name);
+void unregister_chrdev_region(dev_t first, unsigned int count);
+```
+
+デバイス識別子は、動的に割り当てることもできる。  
+これは、alloc_chrdev_region　関数を使う。
 
 
