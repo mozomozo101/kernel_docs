@@ -219,5 +219,34 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
 
 
 # プロセスのアドレス空間へのアクセス
+ドライバは、アプリケーションとハードウェアのインターフェースとなるため、  
+ユーザ空間へのアクセスが必要となることもある。
+ユーザ空間へのダイレクトなアクセスは、異常な動作やセキュリティの問題を引き起こす。
+そのため、以下のマクロや関数を使って行う。
+
+```
+#include <asm/uaccess.h>
+
+put_user(type val, type *address);
+get_user(type val, type *address);
+unsigned long copy_to_user(void __user *to, const void *from, unsigned long n);
+unsigned long copy_from_user(void *to, const void __user *from, unsigned long n)
+```
+
+* put_user
+    * ユーザ空間のaddressアドレスに、値valをセットする
+* get_user
+    * ユーザ空間のaddressアドレスの値を、val にセットする
+* copy_to_user
+    * カーネル空間のfromアドレスから、ユーザ空間のtoアドレスに、nバイトコピー
+* copy_from_user
+    * ユーザ空間のfromアドレスから、カーネル空間のtoアドレスに、nバイトコピー
+
+
+
+
+
+
+
 
 
