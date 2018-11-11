@@ -233,19 +233,67 @@ unsigned long copy_to_user(void __user *to, const void *from, unsigned long n);
 unsigned long copy_from_user(void *to, const void __user *from, unsigned long n)
 ```
 
-* put_user
-    * ユーザ空間のaddressアドレスに、値valをセットする
-* get_user
-    * ユーザ空間のaddressアドレスの値を、val にセットする
-* copy_to_user
-    * カーネル空間のfromアドレスから、ユーザ空間のtoアドレスに、nバイトコピー
-* copy_from_user
-    * ユーザ空間のfromアドレスから、カーネル空間のtoアドレスに、nバイトコピー
+* put_user: ユーザ空間のaddressアドレスに、値valをセットする
+* get_user: ユーザ空間のaddressアドレスの値を、val にセットする
+* copy_to_user: カーネル空間のfromアドレスから、ユーザ空間のtoアドレスに、nバイトコピー
+* copy_from_user: ユーザ空間のfromアドレスから、カーネル空間のtoアドレスに、nバイトコピー
+
+# open と release
+
+# read と write（未完成）
+readやwriteにおいて、ドライバが受け取るバッファのアドレスは、ユーザ空間のもの。  
+そのため、copy_to_user や copy_from_user　が必要となる。  
+
+read/write は、次の値を返すことができる。
+* 正の値は、転送したデータのバイト数
+* ０はファイルの終端を表す（readの場合）
+* 負の値は、エラーコードを表す。
+
+また、下記の処理を行わせる必要がある。
+* バッファとデバイス間で、可能な限りデータを転送する
+* 次のread/writeを開始する位置（オフセット）を更新する
+* 転送したデータのバイト数を返す
+
+以下では、バッファサイズ、ユーザ側のバッファサイズ、オフセットを考慮した
+read関数の例。
+
+```
+static int my_read(struct file *file, char __user *user_buffer,
+                   size_t size, loff_t *offset)
+{
+    struct my_device_data *my_data = (struct my_device_data *) file->private_data;
+    ssize_t len = min(my_data->size - *offset, size);
+
+    if (len <= 0)
+        return 0;
+
+    /* read data from device in my_data->buffer */
+    if (copy_to_user(user_buffer, my_data->buffer + *offset, len))
+        return -EFAULT;
+
+    *offset += len;
+    return len;
+}
+```
+
+# ioctl
+ioctlはこんな形。
+
+```
+static long my_ioctl (struct file *file, unsigned int cmd, unsigned long arg);
+```
+* cmd: ユーザ空間から送られてきたコマンド
+* arg: ユーザ空間のバッファへのポインタ。copy_to_user, copy_from_user　でアクセス。
 
 
+ioctlを実装する前に、cmdに相当する値を定義する必要がある。  
+このコマンドの生成には、`_IOC(dir, type, nr, size)` というマクロを使うと良い。  
+_IOC　マクロのパラメータは、以下のとおり。
 
-
-
+* dir: データ転送のタイプを表す（_IOC_NONE, _IOC_READ, _IOC_WRITE）
+* type: マジックナンバー(Documentation/ioctl-number.txt参照)
+* nr: デバイスに対するioctlコード 
+* size: 転送するデータのサイズ
 
 
 
