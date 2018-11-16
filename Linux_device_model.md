@@ -1,5 +1,5 @@
 # linux device model
-https://linux-kernel-labs.github.io/master/labs/device_model.html
+https://linux-kernel-labs.github.io/master/labs/device_model.html    
 https://static.lwn.net/images/pdf/LDD3/ch14.pdf
 
 ## バス
