@@ -21,10 +21,10 @@ UNIXにおいては、デバイスファイルは２種類ある（従ってデ�
 
 これら２種類のデバイスドライバについて、Linuxでは、２つの異なるAPIを用意している。  
 
-# majour と minor
+# major と minor
 UNIX同様、Linuxでも、デバイスはそれぞれに一意の値を割り当てられている。  
-この識別子はmajour, minor の２つのパートから構成される。  
-majourはデバイスタイプ（IDE, SCSI, serialなどなど）を、minor は、各majorデバイスの通し番号である。  
+この識別子はmajor, minor の２つのパートから構成される。  
+majorはデバイスタイプ（IDE, SCSI, serialなどなど）を、minor は、各majorデバイスの通し番号である。  
 大抵、major はドライバの種類を、minorは個別のデバイスを識別する。  
 また、ドライバはメジャー番号に紐づいており、同じメジャー番号を持つ全てのマイナー番号のデバイスに対して責任を負う。
 
@@ -55,6 +55,25 @@ $ mknod /dev/mybdev b 240 0    // block device
 * struct inode
 
 ## file_operations 構造体
+こういうの。
+```
+struct file_operations {
+    struct module *owner;
+    loff_t (*llseek) (struct file *, loff_t, int);
+    ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
+    ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
+    [...]
+    long (*unlocked_ioctl) (struct file *, unsigned int, unsigned long);
+    [...]
+    int (*open) (struct inode *, struct file *);
+    int (*flush) (struct file *, fl_owner_t id);
+    int (*release) (struct inode *, struct file *);
+    [...]
+```
+
+各関数が受け取る値は、ユーザが使うシステムコールの引数とは異なっている。  
+例えば、open(2) はファイルのパスなどを受け取るが、上記のopen にはそれが無い。  
+代わりに、file や inode を受け取っているだろう。  
 
 ## inode構造体とfile構造体
 
