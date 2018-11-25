@@ -158,6 +158,7 @@ static int my_read(struct file *file, char __user *user_buffer, size_t size, lof
 
 デバイス識別子を静的に割り当てるには、`register_chrdev_region`　または`unresigrer_chrdev_region`を使用する。
 動的に割り当てるには alloc_chrdev_region　関数を使う方法もあり、これもオススメ。
+デバイス識別子が割り当てられると、それは[http://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-ja-4/s1-proc-topfiles.html](/proc/devices) に現れる。
 
 ```
 #include <linux/fs.h>
@@ -282,7 +283,7 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
 ```
 
 まとめると、新しくデバイスを登録するには、  
-* register_chrdev_region でメジャー番号、マイナー番号の組みである dev_t を取得、予約する
+* register_chrdev_region で、デバイス識別子とデバイスの種類をカーネルに登録する（/proc/devices）
 * cdev_init でcdevを初期化する
 * cdev_add でdev_tとcdevを紐づけることで、カーネルに新しいデバイスの存在を通知する
 
@@ -362,6 +363,13 @@ _IOC　マクロのパラメータは、以下のとおり。
 * type: マジックナンバー(Documentation/ioctl-number.txt参照)
 * nr: デバイスに対するioctlコード 
 * size: 転送するデータのサイズ
+
+
+# 練習問題
+## Register/unregister
+* /dev/so2_cdevというキャラクタデバイスを作る
+* /dev/so2_cdevの追加、削除を行うカーネルモジュール so2_cdev を作成する
+* モジュール挿入後、/proc/devices に当該デバイスが生成されることを確認する
 
 
 
