@@ -1,4 +1,4 @@
-# キャラクタ型デバイスのデータ構造
+# キャラクタデバイス・ドライバ
 https://linux-kernel-labs.github.io/master/labs/device_drivers.html  
 ここの翻訳。
 
@@ -26,14 +26,26 @@ UNIX同様、Linuxでも、デバイスはそれぞれに一意の値を割り�
 この識別子はmajour, minor の２つのパートから構成される。  
 majourはデバイスタイプ（IDE, SCSI, serialなどなど）を、minor は、各majorデバイスの通し番号である。  
 大抵、major はドライバの種類を、minorは個別のデバイスを識別する。  
+また、ドライバはメジャー番号に紐づいており、同じメジャー番号を持つ全てのマイナー番号のデバイスに対して責任を負う。
 
 ```
 # ls -la /dev/hda? /dev/ttyS?
-brw-rw----  1 root disk    3,  1 2004-09-18 14:51 /dev/hda1
-brw-rw----  1 root disk    3,  2 2004-09-18 14:51 /dev/hda2
-crw-rw----  1 root dialout 4, 64 2004-09-18 14:52 /dev/ttyS0
-crw-rw----  1 root dialout 4, 65 2004-09-18 14:52 /dev/ttyS1
+brw-rw----  1 root disk    3,  1 2004-09-18 14:51 /dev/hda1      // block device (major, minor)=(3, 1)
+brw-rw----  1 root disk    3,  2 2004-09-18 14:51 /dev/hda2      // block device (major, minor)=(3, 2)
+crw-rw----  1 root dialout 4, 64 2004-09-18 14:52 /dev/ttyS0     // character device (major, minor)=(4, 64)
+crw-rw----  1 root dialout 4, 65 2004-09-18 14:52 /dev/ttyS1     // character device (major, minor)=(4, 65)
 ```
+
+major番号と各デバイス種類の紐付けは、Documentation/devices.txt に書かれている。  
+また、自分が作ったオリジナルのデバイスに対してmajor番号を紐付けたい場合は、２つの方法(static, dynamic)がある。
+
+静的にデバイスファイルを作成するなら、mknodコマンドを使う。
+```
+$ mknod /dev/mycdev c 42 0     // character deivce
+$ mknod /dev/mybdev b 240 0    // block device
+```
+
+# キャラクタデバイスのデータ構造
 
 キャラクタ型デバイスは、struct dev で表される。
 これを操作するドライバが使う主要な構造体は、以下の３つ。  
