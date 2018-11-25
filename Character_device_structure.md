@@ -183,7 +183,7 @@ if (err != 0) {
 ```
 
 デバイス識別子を割り当てたら、キャラクタデバイスは初期化し（cdev_init）、  
-cdev_add　により、カーネルに通知する。  
+cdev_add　により、カーネルに通知する（dev_tとcdev_initを紐づける）。  
 cdev_add　は、デバイスが呼び出しに応答する準備ができた後に一度だけ呼ばれる。  
 デバイスの除去は、cdev_del によって行われる。  
 
@@ -281,6 +281,10 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
 }
 ```
 
+まとめると、新しくデバイスを登録するには、  
+* register_chrdev_region でメジャー番号、マイナー番号の組みである dev_t を取得、予約する
+* cdev_init でcdevを初期化する
+* cdev_add でdev_tとcdevを紐づけることで、カーネルに新しいデバイスの存在を通知する
 
 # プロセスのアドレス空間へのアクセス
 ドライバは、アプリケーションとハードウェアのインターフェースとなるため、  
