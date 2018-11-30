@@ -415,10 +415,11 @@ wake_up_interruptible (&wq);
 
 # 練習問題
 ## Register/unregister
-* /dev/so2_cdevというキャラクタデバイスを作る
-* /dev/so2_cdevの追加、削除を行うカーネルモジュール so2_cdev を作成する
-* モジュール挿入後、/proc/devices に当該デバイスが生成されることを確認する
+メジャー番号はMY_MAJOR、マイナー番号はMY_MINORとなるデバイスを制御するドライバを作る。  
 
+1. mknodを使って、/dev/so2_cdevというキャラクタデバイスノードを作る
+2. /dev/so2_cdevの追加、削除を行うカーネルモジュール so2_cdev を作成する
+3. モジュール挿入後、/proc/devices に当該デバイスが生成されることを確認する
 
 
 
