@@ -45,6 +45,8 @@ $ mknod /dev/mycdev c 42 0     // character deivce
 $ mknod /dev/mybdev b 240 0    // block device
 ```
 
+動的に作る場合は、udev を使う。
+
 # キャラクタデバイスのデータ構造
 
 キャラクタ型デバイスは、struct dev で表される。
@@ -154,7 +156,7 @@ static int my_read(struct file *file, char __user *user_buffer, size_t size, lof
 
 デバイス識別子を静的に割り当てるには、`register_chrdev_region`　または`unresigrer_chrdev_region`を使用する。
 動的に割り当てるには alloc_chrdev_region　関数を使う方法もあり、これもオススメ。
-デバイス識別子が割り当てられると、それは[/proc/device](http://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-ja-4/s1-proc-topfiles.html) に現れる。
+デバイス識別子が割り当てられると、そのデバイスとメジャー番号が、[/proc/device](http://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-ja-4/s1-proc-topfiles.html) に現れる。
 
 ```
 #include <linux/fs.h>
