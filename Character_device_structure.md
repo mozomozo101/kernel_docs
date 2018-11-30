@@ -361,6 +361,58 @@ _IOC　マクロのパラメータは、以下のとおり。
 * size: 転送するデータのサイズ
 
 
+# 待ち列（wait queue）
+スレッドがデバイス操作の完了を待つという場面はよくあるが、ビジー状態での待ちは避けたいところ。  
+待ち列を使うと、イベントが発生するまでスレッドをブロックすることができる。
+待ち列は、特定のイベントの発生を待つプロセスのリストだ。  
+このキューは、`wait_queue_head_t`型で表される。
+ドライバは、このキューによって、自分を使おうとするプロセスを管理する。
+
+```
+#include <linux/wait.h>
+
+DECLARE_WAIT_QUEUE_HEAD(wq_name);
+
+// 待ち列の初期化
+void init_waitqueue_head(wait_queue_head_t *q);
+
+// conditionがfalseの間、現在のスレッドをキューに入れ（スリープさせ）、他のスレッドのためにスケジューラを呼ぶ。
+// 他のスレッドが wake_up 関数を呼ぶと、スリープが解除される。
+int wait_event(wait_queue_head_t q, int condition);
+int wait_event_interruptible(wait_queue_head_t q, int condition);
+
+// 上の２つと同じだが、timeoutで指定した時間を過ぎると、スリープが解除される。
+int wait_event_timeout(wait_queue_head_t q, int condition, int timeout);
+int wait_event_interruptible_timeout(wait_queue_head_t q, int condition, int timeout);
+
+// 待ち列のプロセスを全て起こす
+void wake_up(wait_queue_head_t *q);
+void wake_up_interruptible(wait_queue_head_t *q);
+```
+
+以下に、フラグ値が変更されるまで待ち続けるスレッドの例を示す。
+
+```
+#include <linux/sched.h>
+
+wait_queue_head_t wq;
+int flag = 0;
+
+init_waitqueue_head(&wq);
+```
+
+あるスレッドは、flagがゼロ以外になるまでスリープする。
+```
+wait_event_interruptible(wq, flag != 0);
+```
+
+別スレッドでは、flagを変更し、スリープしているスレッドを起こす
+```
+flag = 1 ;
+wake_up_interruptible (&wq);
+```
+
+
 # 練習問題
 ## Register/unregister
 * /dev/so2_cdevというキャラクタデバイスを作る
