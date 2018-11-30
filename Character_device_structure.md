@@ -150,7 +150,7 @@ static int my_read(struct file *file, char __user *user_buffer, size_t size, lof
 
 # キャラクタデバイスの登録と削除
 デバイスの登録と削除する際は、メジャー番号とマイナー番号を指定する。
-これらのデバイス識別子は、MKDEVマクロを使って生成され、dev_t 型によって保持され、
+このメジャー番号とマイナー番号は`dev_t`型によって保持され、MKDEVマクロを使うことで取得できる。
 
 デバイス識別子を静的に割り当てるには、`register_chrdev_region`　または`unresigrer_chrdev_region`を使用する。
 動的に割り当てるには alloc_chrdev_region　関数を使う方法もあり、これもオススメ。
