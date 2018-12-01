@@ -445,12 +445,26 @@ wake_up_interruptible (&wq);
 
 
 # 練習問題
-## Register/unregister
-メジャー番号はMY_MAJOR、マイナー番号はMY_MINORとなるデバイスを制御するドライバを作る。  
 
+* readすると適当な文字列を返すキャラクタデバイスを作成する
 1. mknodを使って、/dev/so2_cdevというキャラクタデバイスノードを作る
 2. /dev/so2_cdevの追加、削除を行うカーネルモジュール so2_cdev を作成する
 3. モジュール挿入後、/proc/devices に当該デバイスが生成されることを確認する
+
+* デバイスにアクセスできるプロセスを１つに制限する
+残りのプロセスは、アクセスしようとすると、device busy を表す-EBUSY　のerrnoを受け取る。 
+この処理は、ドライバのopen関数で実装する。
+1. device構造体に atomic_t 変数を用意する
+2. デバイス初期化時に、atomic_tを初期化する
+3. open時、その変数を使ってアクセス制限を行う。[atomic_cmpxchg](https://www.khronos.org/registry/OpenCL/sdk/1.1/docs/man/xhtml/atomic_cmpxchg.html) を使うといいかも。
+4. release時、atomic_tをリセットする
+5. open時に、スケジューラをセットしておく（なんだこれは？）
+```
+set_current_state(TASK_INTERRUPTIBLE);
+schedule_timeout(1000);
+```
+6. `cat /dev/so2_cdev & cat /dev/so2_cdev` を実行してみる。
+
 
 
 
