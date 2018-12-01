@@ -446,12 +446,13 @@ wake_up_interruptible (&wq);
 
 # 練習問題
 
-* readすると適当な文字列を返すキャラクタデバイスを作成する
+## キャラクタデバイスの生成
+readすると適当な文字列を返すキャラクタデバイスを作成する
 1. mknodを使って、/dev/so2_cdevというキャラクタデバイスノードを作る
 2. /dev/so2_cdevの追加、削除を行うカーネルモジュール so2_cdev を作成する
 3. モジュール挿入後、/proc/devices に当該デバイスが生成されることを確認する
 
-* デバイスにアクセスできるプロセスを１つに制限する
+## アクセスできるプロセス数の制限
 残りのプロセスは、アクセスしようとすると、device busy を表す-EBUSY　のerrnoを受け取る。 
 この処理は、ドライバのopen関数で実装する。
 1. device構造体に atomic_t 変数を用意する
@@ -465,9 +466,42 @@ schedule_timeout(1000);
 ```
 6. `cat /dev/so2_cdev & cat /dev/so2_cdev` を実行してみる。
 
+## read関数の実装
+* readすると、デバイス構造体に保持されたデータ（xバイト）をユーザ空間に渡す。  
+    * ユーザ空間へのコピーは、copy_to_userを使う。  
+* コピーするごとにオフセットを更新し、次のデータを送るようにする
+* 戻り値は、ユーザ空間へコピーしたデータのバイト数とする。  
 
 
+## write関数の実装
+* writeした文字列を、カーネル側のバッファに配置する
 
+## ioctl関数の実装
+MY_IOCTL_PRINTというioctlを実装する。  
+これを呼ぶと、IOCTL_MESSAGEマクロにより、ディスプレイにメッセージが表示される。
+
+
+# その他
+## atomic変数について
+linux/atomic.h で定義されてる、Linux Kernel API.  
+atomic変数は、
+```
+typedef struct {
+	int counter;
+} atomic_t;
+```
+という形で定義されている。  
+初期化にあたっては、ATOMIC_INITというマクロが用意されてるが、単純に、counter に値をセットしてるだけ。  
+以下の２つは全く同じ。
+```
+atomic_t at;
+atomic_set(&at, 0);
+```
+```
+atomic_t at = ATOMIC_INIT(0);
+```
+[ここ](https://www.khronos.org/registry/OpenCL/sdk/1.1/docs/man/xhtml/atomicFunctions.html)とか
+[ここ](https://www.ibm.com/developerworks/jp/linux/library/l-linux-synchronization.html)が参考になる。
 
 
 
