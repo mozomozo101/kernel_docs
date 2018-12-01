@@ -24,7 +24,8 @@ UNIXにおいては、デバイスファイルは２種類ある（従ってデ�
 # major と minor
 UNIX同様、Linuxでも、デバイスはそれぞれに一意の値を割り当てられている。  
 この識別子はmajor, minor の２つのパートから構成される。  
-majorはデバイスタイプ（IDE, SCSI, serialなどなど）を、minor は、各majorデバイスの通し番号である。  
+majorはデバイスタイプ（IDE, SCSI, serialなどなど）を、minor は、各majorデバイスの通し番号である。
+ローカルで使用できるmajor番号は、240〜254。
 大抵、major はドライバの種類を、minorは個別のデバイスを識別する。  
 また、ドライバはメジャー番号に紐づいており、同じメジャー番号を持つ全てのマイナー番号のデバイスに対して責任を負う。
 
@@ -107,7 +108,7 @@ struct file　の内容は、こんな感じ。
 inode構造体は、いろいろな情報の他に、キャラクタ型デバイス(struct cdev)へのポインタとなる、
 i_cdevフィールドを持つ。  
 
-# 実装
+# オペレーションの実装
 デバイスドライバを実装する際、デバイスに関する情報（キャラクタデバイスの場合はcdev構造体）とモジュールが使用する情報を、１つの構造体にまとめておくと便利。  
 このような構造体として、以下に、`struct my_device_data` を示す。
 
@@ -156,7 +157,6 @@ static int my_read(struct file *file, char __user *user_buffer, size_t size, lof
 
 デバイス識別子を静的に割り当てるには、`register_chrdev_region`　または`unresigrer_chrdev_region`を使用する。
 動的に割り当てるには alloc_chrdev_region　関数を使う方法もあり、これもオススメ。
-デバイス識別子が割り当てられると、そのデバイスとメジャー番号が、[/proc/device](http://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-ja-4/s1-proc-topfiles.html) に現れる。
 
 ```
 #include <linux/fs.h>
@@ -164,7 +164,6 @@ static int my_read(struct file *file, char __user *user_buffer, size_t size, lof
 int register_chrdev_region(dev_t first, unsigned int count, char *name);
 void unregister_chrdev_region(dev_t first, unsigned int count);
 ```
-
 
 ここでは静的割り当ての様子を示す。  
 メジャー番号は`my_majour`、マイナー番号は、`my_first_minor`から始まる`my_minotr_count`個を予約する。
@@ -248,8 +247,29 @@ void cleanup_module(void)
 }
 ```
 
+## 補足１（MKDEVについて）
+dev_t 型は、major番号とminor番号を結合したもの。  
 
-## 個人的注釈（cdev_add, cdev_init について）
+```
+MKDEV(major, minor) とすると、majorとminorを結合し、dev_t型を作ってくれる。
+
+dev_t型：
++------------------------+
+|  major |     minor     |
++------------------------+
+   12bit       20bit
+```
+
+## 補足２（register_chardev_regionは、何をしてるか）
+カーネルでは、デバイス番号が被らないよう、major番号をchrdevというハッシュテーブルで、  
+各デバイスに属すminor番号を、char_device_struct で記録しておく。  
+register_chardev_region は、そこに指定レンジのメジャー、マイナーを登録し、確保するようだ。 
+[ここ](https://books.google.co.jp/books?id=h0lltXyJ8aIC&pg=PT570&lpg=PT570&dq=char_device_struct&source=bl&ots=gP3oLW4cKS&sig=tiA4e__Mwhi1HlQgRhZdDyMDGp0&hl=ja&sa=X&ved=2ahUKEwif_KnTy_3eAhUDf7wKHU0JAzIQ6AEwA3oECAcQAQ#v=onepage&q=char_device_struct&f=false)を参照。  
+デバイス識別子が割り当てられると、そのデバイスとメジャー番号が、[/proc/device](http://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-rg-ja-4/s1-proc-topfiles.html) に現れる。
+
+
+
+## 補足３（cdev_add, cdev_init について）
 
 ```
 // cdev を初期化し、fopsを登録するだけだ。
@@ -261,7 +281,7 @@ void cdev_init(struct cdev *cdev, const struct file_operations *fops)
 	cdev->ops = fops;
 }
 
-// dev_t と cdev　を紐づけている
+// dev_t と cdev　を紐づけ、cdevをシステムに登録してる
 int cdev_add(struct cdev *p, dev_t dev, unsigned count)
 {
 	int error;
@@ -280,10 +300,19 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
 }
 ```
 
-まとめると、新しくデバイスを登録するには、  
-* register_chrdev_region で、デバイス識別子とデバイスの種類をカーネルに登録する（/proc/devices）
-* cdev_init でcdevを初期化する
-* cdev_add でdev_tとcdevを紐づけることで、カーネルに新しいデバイスの存在を通知する
+## 補足４（register_chrdevについて）
+[register_chrdev()](https://elixir.bootlin.com/linux/latest/ident/__register_chrdev)　は、register_chardev_region(), cdev_add(), cdev_init())をまとめてやってくれる。
+
+
+## まとめ
+新しくデバイスを登録するには、  
+1. ユーザからアクセスするなら、mknodでデバイスファイルを作る  
+2. register_chrdev_region で、デバイス識別子を確保する  
+3. cdev_init でcdevを初期化する  
+4. cdev_add でdev_tとcdevを紐づけることで、システムにデバイスを登録する  
+
+ただし、2~4は、register_chrdev()　でも代用可能。
+
 
 # プロセスのアドレス空間へのアクセス
 ドライバは、アプリケーションとハードウェアのインターフェースとなるため、  
@@ -422,6 +451,31 @@ wake_up_interruptible (&wq);
 1. mknodを使って、/dev/so2_cdevというキャラクタデバイスノードを作る
 2. /dev/so2_cdevの追加、削除を行うカーネルモジュール so2_cdev を作成する
 3. モジュール挿入後、/proc/devices に当該デバイスが生成されることを確認する
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
