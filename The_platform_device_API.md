@@ -80,7 +80,6 @@ struct platform_device {
 resource構造体は、そのデバイスが使用するリソース（Memory mappped IOレジスタ、割り込みetc.）の場所を指定する。  
 使用するリソースの数（num_resouces）配列になっている。  
 これらのリソース情報を取得するヘルパ関数が幾つか用意されている。  
-ここで、引数"n" は、num_resources個のresource構造体のうち、何番目かを指定する。
 ```
 struct resource *platform_get_resource(struct platform_device *pdev, 
 					   unsigned int type, unsigned int n);
@@ -91,12 +90,16 @@ struct resource *platform_get_resource_byname(struct platform_device *pdev,
 int platform_get_irq(struct platform_device *pdev, unsigned int n);
 ```
 
-例えば、ドライバは、
+ここで、引数"n" は、resource構造体のうち、指定typeの何番目の要素かを指定する。  
+例えば、次の章におけるfoomaticデバイスの１番目のIRQ情報へのポインタは、以下のようにして取得する。
+```
+r = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+```
 
 
 ## platform device
 はじめの方で書いたように、platform device は、カーネルに対してデバイスの存在を伝えるための仕組み。  
-このためには、platform_device構造体を作成し、ドライバが自分を探す時に使う名前や、使用するリソースについての情報を、与える必要がある。
+このためには、platform_device構造体を作成し、ドライバが自分を探す時に使う名前や、使用するリソースについての情報を、与える必要がある。  
 以下では、その簡単な例を示す。
 
 ```
@@ -123,23 +126,22 @@ static struct resource foomatic_resources[] = {
 ```
 
 ここでは、foomatic という名前のplatform_deviceを定義している。  
-.resouceフィールドより、0x10000000〜0x10001000 のMIMOと、IRQ20を使用することがわかる。
+.resouceフィールドより、0x10000000〜0x10001000 のMIMOと、IRQ20を使用することがわかる。  
 
-こうしてデバイスを定義したら、あとは
+こうしてデバイスを定義したら、あとは  
 ```
 int platform_device_register(struct platform_device *pdev);
 ```
-で、システムに知らせる。
+で、システムに知らせる。  
 
 カーネルはこれを受け取ると、対応するドライバを探す。  
-見つかったら、ドライバのprobe() を呼び、デバイスをインスタンス化する。
+見つかったら、ドライバのprobe() を呼び、デバイスをインスタンス化する。  
 デバイスの除去は、platform_device_unregister() で行う。
 
 ## platform data
-platform_dataフィールドを使うことで、様々なデータをデバイス、ドライバ間で受け渡すことができる。
-例えばi2c-gpioデバイスは、GPIOの数と、i2cクロック、データのライン数を、i2c-gpioドライバに渡している。
-こんな感じだ。
-ドライバは、probe()において、platform_data が指すデータを取得し、使うことができる。
+platform_dataフィールドを使うことで、様々なデータをデバイス、ドライバ間で受け渡すことができる。  
+例えばi2c-gpioデバイスは、GPIOの数と、i2cクロック、データのライン数を、i2c-gpioドライバに渡している。  
+こんな感じだ。  
 ```
 #include <linux/i2c-gpio.h>
 
@@ -156,7 +158,7 @@ platform_dataフィールドを使うことで、様々なデータをデバイ�
 	}
     };
 ```
-
+ドライバは、probe()において、platform_data が指すデータを取得し、使うことができる。  
 
 
 
