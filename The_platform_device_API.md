@@ -12,7 +12,7 @@ PCIバスにつながったデバイスは、システムに対し、自分が�
 このようなデバイス情報を取得する仕組みとして、Platform Devices がある。
 
 
-## Platform drivers（未完成）
+## Platform drivers
 platform device は、`struct platform_device` で表現される（linux/platform_device.h）。  
 platform device は、仮想的な"platform bus" に接続され、ここに対応するドライバ（platform driver）が登録されることになる。
 
