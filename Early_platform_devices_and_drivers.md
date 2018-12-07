@@ -1,5 +1,5 @@
 この2つをまとめたもの。  
-http://www.alfonsoesparza.buap.mx/sites/default/files/linux-insides.pdf 
+http://www.alfonsoesparza.buap.mx/sites/default/files/linux-insides.pdf   
 https://www.kernel.org/doc/Documentation/driver-model/platform.txt  
 
 
@@ -69,7 +69,7 @@ early_param("gbpages", parse_direct_gbpages_on)
 
 
 ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ー
-# ここからは、未完成
+# ここからは、未完成っぅｔぅっっ！！！！１１１！？？？
 
 https://lwn.net/Articles/314900/
 
