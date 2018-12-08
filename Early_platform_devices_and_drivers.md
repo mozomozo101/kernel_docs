@@ -6,15 +6,14 @@ https://www.kernel.org/doc/Documentation/driver-model/platform.txt
 Early platform interface を使うと、システムの起動初期段階で、platform device driver にplatform data を渡すことができる。
 
 ### early platform device データの登録  
-platform deviceは、
+platform deviceは
 [early_platform_add_devices()](https://elixir.bootlin.com/linux/latest/source/drivers/base/platform.c#L1271) 
-を使って、当該デバイスを、early_platform_device_list というearly platform device のリストに追加する。
+を使って、当該デバイスをearly_platform_device_listというearly platform device のリストに追加する。
 
 ### カーネルコマンドラインのパース  
-earlyな処理は、カーネル起動時に特定のパラメータを渡すことで、実行される。  
-そのため、あらかじめ、カーネルコード内で、どのパラメータを受け取った場合に、どんな処理を行うかを記述しておく必要がある。  
-これは、early_param マクロを使って行う。   
-
+earlyな処理は、カーネル起動時に特定のパラメータを渡すことで実行される。  
+そのため、あらかじめカーネルコード内で、どのパラメータを受け取った場合にどんな処理を行うかを記述しておく必要がある。  
+これは、early_param マクロを使って行う。  
 このマクロは、以下の形をとる。
 ```
 early_param ("xxx", funcx) 
@@ -22,7 +21,7 @@ early_param ("xxx", funcx)
 * xxx: コマンドラインのパラメタ名
 * funcx: xxxがパラメタとして与えられた場合に呼ばれる関数。
 
-このマクロは、結果的に、下記のように展開される。  
+このマクロは、結果的に下記のように展開される。  
 つまり、obs_kernel_param構造体により、early処理対象となるブートパラメータと、それがセットされた場合に実行される関数が紐づけられている。
 ```
 char __setup_str_funcx = "xxx";
@@ -34,7 +33,7 @@ static obs_kernel_param __setup_funcx {
 }
 ```
 
-earlyprintk　の場合、[このように](https://elixir.bootlin.com/linux/v4.20-rc5/source/arch/arm/kernel/early_printk.c#L50)
+earlyprintk の場合、[このように](https://elixir.bootlin.com/linux/v4.20-rc5/source/arch/arm/kernel/early_printk.c#L50)
 記述されている。
 ```
 static int __init setup_early_printk(char *buf)
