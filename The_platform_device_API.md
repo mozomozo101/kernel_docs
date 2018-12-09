@@ -8,9 +8,18 @@ LWNの["The Platform device API"](https://lwn.net/Articles/448499/)の翻訳。
 PCIバスにつながったデバイスは、システムに対し、自分がどんなデバイスで、どのリソースを使うか伝えることができる。  
 これにより、カーネルは起動時に、使用できるデバイスを全て把握できる。
 
-しかし、組み込みの世界では、CPUから見つけられないデバイスがたくさんある（注：これは何故？）。  
-このようなデバイス情報を取得する仕組みとして、Platform Devices がある。
+しかし、組み込みの世界では、CPUから見つけられないデバイスがたくさんある（注１）。  
+このようなデバイス情報を取得する仕組みとして、Platform Devices がある（注２）。
 
+* 注1
+「PCIやUSBなどは、起動時にCPUへ自分の存在を伝えることができるが、組み込み機器に搭載されたデバイスには、
+そのような規格を使っていない物があり、CPUはその存在を把握できない」ということだと思う。
+
+* 注2
+[ここ](https://stackoverflow.com/questions/15610570/what-is-the-difference-between-a-linux-platform-driver-and-normal-device-driver)から、「platform device は、別にSoCに搭載されたデバイス専用というわけではない。
+例えばi2cデバイスは、SoC以外にも搭載されているものの、i2cの規格の仕様上、起動時に自分の存在をCPUに伝えない。
+そのため、platform device として登録しておく必要がある。」
+と理解した。
 
 ## Platform drivers
 platform device は、`struct platform_device` で表現される（linux/platform_device.h）。  
