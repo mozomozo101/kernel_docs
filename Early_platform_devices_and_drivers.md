@@ -24,7 +24,8 @@ early_param ("xxx", funcx)
 * funcx: xxxがパラメタとして与えられた場合に呼ばれる関数。
 
 このマクロは、結果的に下記のように展開される。  
-つまり、obs_kernel_param構造体により、early処理対象となるブートパラメータと、それがセットされた場合に実行される関数が紐づけられている。
+つまり、[obs_kernel_param](https://elixir.bootlin.com/linux/latest/source/include/linux/init.h#L241)
+構造体により、early処理対象となるブートパラメータと、それがセットされた場合に実行される関数が紐づけられている。
 ```
 char __setup_str_funcx = "xxx";
 
