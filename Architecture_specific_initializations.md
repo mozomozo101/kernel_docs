@@ -4,7 +4,7 @@
 を参照。  
 
 カーネルコマンドラインをパースし、その内容に応じた処理を行うことができる。
-設定可能なカーネルコマンドラインのパラメータは、[ここ](https://github.com/torvalds/linux/blob/master/Documentation/kernel-parameters.txt)に書かれてる。
+設定可能なカーネルコマンドラインのパラメータは、[ここ](https://www.kernel.org/doc/Documentation/admin-guide/kernel-parameters.txt)に書かれてる。
 
 
 ## パラメータに応じた処理の登録
