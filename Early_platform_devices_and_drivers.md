@@ -11,9 +11,11 @@ platform deviceは
 を使って、当該デバイスをearly_platform_device_listというearly platform device のリストに追加する。
 
 ### カーネルコマンドラインのパース  
+
+#### earlyな処理の登録
 earlyな処理は、カーネル起動時に特定のパラメータを渡すことで実行される。  
 そのため、あらかじめカーネルコード内で、どのパラメータを受け取った場合にどんな処理を行うかを記述しておく必要がある。  
-これは、early_param マクロを使って行う。  
+これは、[early_param](https://elixir.bootlin.com/linux/latest/source/include/linux/init.h#L268) マクロを使って行う。  
 このマクロは、以下の形をとる。
 ```
 early_param ("xxx", funcx) 
@@ -46,14 +48,42 @@ static int __init setup_early_printk(char *buf)
 early_param ("earlyprintk", setup_early_printk)
 ```
 
-early_param() で登録された関数は、parse_early_param() によって、全て実行される。  
-ブート時のコマンドラインをパースし、それがearly_param() によってearlyな処理に紐づいている場合、obs_kernel_param内で紐付けられた関数を呼ぶという感じ。  
+#### earlyな処理の実行
+early_param() で登録されたearlyな関数を実行するには、parse_early_param() を呼ぶ。  
+すると、ブート時のコマンドラインをパースした上で、下記のように複数の関数を経て、最終的に
+[do_early_param()](https://github.com/torvalds/linux/blob/16f73eb02d7e1765ccab3d2018e0bd98eb93d973/init/main.c#L440)
+が呼ばれる。  
 ```
 parse_early_param()
   -> parse_early_options(cmdline)
     -> parse_args(cmdline)
       -> do_early_param    // パラメータがearlyなら、obs_kernel_param に設定された関数を呼ぶ
 ```
+この関数は、見ての通り、各struct obs_kernel_param を順に見ていき、earlyフラグが立っていれば、紐付けられた関数を呼ぶ。
+
+
+#### 補足 
+struct obs_kernel_param は、下記の定義の通り、.init.setup セクションに配置される。 
+```
+#define __setup_param(str, unique_id, fn, early)                \
+        static const char __setup_str_##unique_id[] __initconst \
+                __aligned(1) = str; \
+        static struct obs_kernel_param __setup_##unique_id      \
+                __used __section(.init.setup)                   \
+                __attribute__((aligned((sizeof(long)))))        \
+                = { __setup_str_##unique_id, fn, early }
+```
+.init.setupセクションは、
+[include/asm-generic/vmlinux.lds.h](https://github.com/torvalds/linux/blob/16f73eb02d7e1765ccab3d2018e0bd98eb93d973/include/asm-generic/vmlinux.lds.h#L702)
+において設定されている。
+```
+#define INIT_SETUP(initsetup_align)                \
+                . = ALIGN(initsetup_align);        \
+                VMLINUX_SYMBOL(__setup_start) = .; \
+                *(.init.setup)                     \
+                VMLINUX_SYMBOL(__setup_end) = .;
+```
+
 
 ### ドライバの登録
 early_platform_driver_register_all() を使うと、特定のクラスに属する全ての early platform driver を登録できるよ。
