@@ -1,95 +1,56 @@
-この2つをまとめたもの。  
-http://www.alfonsoesparza.buap.mx/sites/default/files/linux-insides.pdf   
-https://www.kernel.org/doc/Documentation/driver-model/platform.txt  
-
 # Early Platform Device and Drivers
-Early platform interface を使うと、システムの起動初期段階で、platform device driver にplatform data を渡すことができる。
+これらをまとめたもの。   
+https://www.kernel.org/doc/Documentation/driver-model/platform.txt  
+https://lwn.net/Articles/314900/  
+
+Early platform interface を使うと、システムの起動初期段階で、platform device driver にplatform data を渡すことができる。  
+そのためには、予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)を使って、これらの処理をシステム初期段階で行うよう、登録しておく必要がある。
 
 ### early platform device データの登録  
 platform deviceは
 [early_platform_add_devices()](https://elixir.bootlin.com/linux/latest/source/drivers/base/platform.c#L1271) 
 を使って、当該デバイスをearly_platform_device_listというearly platform device のリストに追加する。
 
-### カーネルコマンドラインのパース  
-
-#### earlyな処理の登録
-earlyな処理は、カーネル起動時に特定のパラメータを渡すことで実行される。  
-そのため、あらかじめカーネルコード内で、どのパラメータを受け取った場合にどんな処理を行うかを記述しておく必要がある。  
-これは、[early_param](https://elixir.bootlin.com/linux/latest/source/include/linux/init.h#L268) マクロを使って行う。  
-このマクロは、以下の形をとる。
-```
-early_param ("xxx", funcx) 
-```
-* xxx: コマンドラインのパラメタ名
-* funcx: xxxがパラメタとして与えられた場合に呼ばれる関数。
-
-このマクロは、結果的に下記のように展開される。  
-つまり、[obs_kernel_param](https://elixir.bootlin.com/linux/latest/source/include/linux/init.h#L241)
-構造体により、early処理対象となるブートパラメータと、それがセットされた場合に実行される関数が紐づけられている。
-```
-char __setup_str_funcx = "xxx";
-
-static obs_kernel_param __setup_funcx {
-		__setup_str_funcx,  	// カーネルパラメータ
-		,funcx			// セットされる関数			
-		1 			// 0:not early, 1:early
-}
-```
-
-earlyprintk の場合、[このように](https://elixir.bootlin.com/linux/v4.20-rc5/source/arch/arm/kernel/early_printk.c#L50)
-記述されている。
-```
-static int __init setup_early_printk(char *buf)
-{
-	early_console = &early_console_dev;
-	register_console(&early_console_dev);
-	return 0;
-}
-
-early_param ("earlyprintk", setup_early_printk)
-```
-
-#### earlyな処理の実行
-early_param() で登録されたearlyな関数を実行するには、parse_early_param() を呼ぶ。  
-すると、ブート時のコマンドラインをパースした上で、下記のように複数の関数を経て、最終的に
-[do_early_param()](https://github.com/torvalds/linux/blob/16f73eb02d7e1765ccab3d2018e0bd98eb93d973/init/main.c#L440)
-が呼ばれる。  
-```
-parse_early_param()
-  -> parse_early_options(cmdline)
-    -> parse_args(cmdline)
-      -> do_early_param    // パラメータがearlyなら、obs_kernel_param に設定された関数を呼ぶ
-```
-この関数は、見ての通り、各struct obs_kernel_param を順に見ていき、earlyフラグが立っていれば、紐付けられた関数を呼ぶ。
+### カーネルコマンドラインのパース
+[parse_early_param()](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)
+を使うことで、カーネルのコマンドラインをパースし、それに紐付けられた処理が実行される。  
+予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)によって、platform deviceを登録する処理を紐付けておけば、  
+そこで登録されたplatform device は、early platform device となる。
 
 
-#### 補足 
-struct obs_kernel_param は、下記の定義の通り、.init.setup セクションに配置される。 
-```
-#define __setup_param(str, unique_id, fn, early)                \
-        static const char __setup_str_##unique_id[] __initconst \
-                __aligned(1) = str; \
-        static struct obs_kernel_param __setup_##unique_id      \
-                __used __section(.init.setup)                   \
-                __attribute__((aligned((sizeof(long)))))        \
-                = { __setup_str_##unique_id, fn, early }
-```
-.init.setupセクションは、
-[include/asm-generic/vmlinux.lds.h](https://github.com/torvalds/linux/blob/16f73eb02d7e1765ccab3d2018e0bd98eb93d973/include/asm-generic/vmlinux.lds.h#L702)
-において設定されている。
-```
-#define INIT_SETUP(initsetup_align)                \
-                . = ALIGN(initsetup_align);        \
-                VMLINUX_SYMBOL(__setup_start) = .; \
-                *(.init.setup)                     \
-                VMLINUX_SYMBOL(__setup_end) = .;
-```
-
-
-### ドライバの登録
-early_platform_driver_register_all() を使うと、特定のクラスに属する全ての early platform driver を登録できるよ。
+### ドライバの登録（自信無い）
+early_platform_driver_register_all() を使うと、特定のクラスに属する全ての early platform driver を登録できるよ。  
 また、early_platform_init() を使って初期化したplatfor driever は、この時点で自動的に登録されてるよ。  
 
+```
+#define early_platform_init(class_string, platdrv)		\
+	early_platform_init_buffer(class_string, platdrv, NULL, 0)
+	
+#define early_platform_init_buffer(class_string, platdrv, buf, bufsiz)	\
+static __initdata struct early_platform_driver early_driver = {		\
+	.class_str = class_string,					\
+	.buffer = buf,							\
+	.bufsize = bufsiz,						\
+	.pdrv = platdrv,						\
+	.requested_id = EARLY_PLATFORM_ID_UNSET,			\
+};	
+```
+
+```
+ static int __init sh_cmt_init(void)
+ {
+        return platform_driver_register(&sh_cmt_device_driver);
+ }
+ 
+ static void __exit sh_cmt_exit(void)
+ {
+        platform_driver_unregister(&sh_cmt_device_driver);
+ }
+ 
+ early_platform_init("earlytimer", &sh_cmt_device_driver);
+ module_init(sh_cmt_init);
+ module_exit(sh_cmt_exit);
+```
 
 ### early platform driver の probe
 システムは、特定のクラスを持つ登録済みの early platform driver と 登録済みの early platform deviceを紐付けるため、 ealy_platform_driver_probe() を呼ぶ。
