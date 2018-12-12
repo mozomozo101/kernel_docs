@@ -14,8 +14,7 @@ platform deviceは
 ### カーネルコマンドラインのパース
 [parse_early_param()](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)
 を使うことで、カーネルのコマンドラインをパースし、それに紐付けられた処理が実行される。  
-予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)によって、platform deviceを登録する処理を紐付けておけば、  
-そこで登録されたplatform device は、early platform device となる。
+予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)によって、platform deviceを登録する処理を紐付けておけば、そこで登録されたplatform device は、起動の初期段階でシステムに登録される。
 
 
 ### ドライバの登録（自信無い）
