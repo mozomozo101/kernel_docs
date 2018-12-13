@@ -16,7 +16,7 @@ http://schedule2012.rmll.info/IMG/pdf/LSM2012_ArmKernelConsolidation_Petazzoni.p
 システムが各ペリフェラルを使うには、各ペリフェラルを初期化し、デバイスとして登録する必要がある。  
 そのため、SoCのファイルとボードファイルを用意する。  
 SoCファイルには、各ペリフェラルの初期化API、ベースアドレスや割り込み番号を書いておく。  
-この初期化APIの中でピン設定などを行い、platform_device_register() 等でデバイスを登録する。
+この初期化APIの中でピン設定などを行い、platform_device_register() 等でデバイスを登録する。  
 そしてボードごとに用意されたボードファイルは、必要な分だけSoC用ファイルのペリフェラル初期化APIを呼ぶ。  
 early_param() を使って、ドライバを起動初期段階で登録しておけば、この時点でドライバのprobe()関数が呼ばれる。  
 
