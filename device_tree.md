@@ -28,11 +28,10 @@ early_param() を使って、ドライバを起動初期段階で登録してお
 * ドライバがprobe()を呼ぶ
 
 
-### ボードファイル
-ボードごとに用意されたファイル。  
-ここから、搭載されているSoCのAPI（次の章のSoCファイル）を呼ぶ。  
-
-arch/arm/mach-at91/board-snapper9260.c
+### 例
+これは、snapper9260 というボードで、ethernetポートを初期化する様子。  
+SoC： AT91SAM9260（ARM9搭載）  
+arch/arm/mach-at91/board-snapper9260.c  
 ```c
 // 初期化関数。
 // 各デバイスのadd, registerなど。
@@ -54,7 +53,7 @@ MACHINE_END
 
 ### SoCファイル
 **デバイス定義**  
-ここでは、macb っていうデバイス。
+ここでは、macb っていうデバイス。  
 arch/arm/mach-at91/at91sam9260_devices.c
 
 ```c
@@ -116,7 +115,9 @@ void __init at91_add_device_eth(struct macb_platform_data *data)
 
 ```
 
-**ドライバ**
+**ドライバ**  
+ロードした時点でprobeが呼ばれるようになってる。  
+なので、ロードは、ボードファイルの処理が終わった後にする必要がありそう。
 ```c
 static int __init macb_probe(struct platform_device *pdev)
 {
