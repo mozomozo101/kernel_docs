@@ -145,4 +145,16 @@ module_exit(macb_exit);
 
 ```
 
-# 
+# Device tree
+## 使い方
+ブートローダがDevice Treeを・・・
+* サポートしている場合
+    * カーネルとDTイメージをロードして、カーネルを起動する
+    * DTBのアドレスがr2レジスタに入る。
+    * bootm <*kernel addr*> <*dtb addr*>
+* サポートしてない場合
+    * CONFIG_ARM_APPENDED_DTB をyにしてカーネルをビルド
+    * zImageにdtbが組み込まれる。
+    * あくまでデバッグ用。
+
+
