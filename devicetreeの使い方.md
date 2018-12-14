@@ -1,5 +1,9 @@
 
+https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
+
 # Device tree
+## 
+
 
 ## 使い方
 ブートローダがDevice Treeを・・・
