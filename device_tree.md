@@ -1,4 +1,5 @@
 http://schedule2012.rmll.info/IMG/pdf/LSM2012_ArmKernelConsolidation_Petazzoni.pdf  
+https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf  
 ここを参照。
 
 # ボードファイル
@@ -21,7 +22,9 @@ SoCファイルには、各ペリフェラルの初期化API、ベースアド�
 early_param() を使って、ドライバを起動初期段階で登録しておけば、この時点でドライバのprobe()関数が呼ばれる。  
 
 まとめると、流れはこんな感じ。  
-* bootloaderが、r1レジスタにマシンIDを入れ、kernel_entry()を呼ぶ
+* bootloaderが、r1レジスタにマシンIDを、r2レジスタに[ATAG(Arm TAG)](http://www.katsuster.net/index.php?arg_act=cmd_show_diary&arg_date=20150509&arg_range=1&arg_direction=0)へのポインタを入れ、kernel_entry()を呼ぶ
+    * ATAGは、昔からARM Linuxで使われていた仕組み。
+    * カーネルパラメータやinitramfs の位置、カーネルのロード位置などをカーネルに渡す
 * kernelが起動し、受け取ったマシンIDに紐付いたinit_machine() を呼ぶ
 * ボードファイルは、デバイスや、ボード固有の情報を登録するために、SoC用のAPIを呼ぶ
 * SoCファイルは、ピンマルチ設定したり、デバイスをplatformバスに登録する
@@ -146,6 +149,10 @@ module_exit(macb_exit);
 ```
 
 # Device tree
+
+ここの内容も含める。
+https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
+
 ## 使い方
 ブートローダがDevice Treeを・・・
 * サポートしている場合
