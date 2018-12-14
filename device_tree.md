@@ -31,7 +31,9 @@ early_param() を使って、ドライバを起動初期段階で登録してお
 * ドライバがprobe()を呼ぶ
 
 
-### 例
+## 例
+
+## ボードファイル
 これは、snapper9260 というボードで、ethernetポートを初期化する様子。  
 SoC： AT91SAM9260（ARM9搭載）  
 arch/arm/mach-at91/board-snapper9260.c  
@@ -150,18 +152,21 @@ module_exit(macb_exit);
 
 # Device tree
 
-ここの内容も含める。
-https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
-
 ## 使い方
 ブートローダがDevice Treeを・・・
 * サポートしている場合
     * カーネルとDTイメージをロードして、カーネルを起動する
-    * DTBのアドレスがr2レジスタに入る。
+    * device tree以前とは異なり、r1レジスタは使わない
+    * DTBのアドレス、カーネルパラメータ等をr2レジスタに入る。
     * bootm <*kernel addr*> <*dtb addr*>
 * サポートしてない場合
     * CONFIG_ARM_APPENDED_DTB をyにしてカーネルをビルド
-    * zImageにdtbが組み込まれる。
+    * kernelに、「kernelイメージのすぐうしろにDTBがあるから、探してね」と伝えられる
+    * kernel + DTB は、自分で用意する必要あり
+    ```
+    $ cat arch/arm/boot/zImage arch/arm/boot/dts/myboard.dtb >> my-zImage
+    $ mkimage ... -d my-zImage my-uImage
+    ```
     * あくまでデバッグ用。
 
 
