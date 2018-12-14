@@ -131,6 +131,9 @@ DTをではplatform deviceという概念は無いが、ルートに配置され
 	};
 };
 ```
+.init_machine() において、Tegraボード用のコードは、compatibleプロパティを持ったノードを探し、それらに対し、platform_deviceを作成していく。
+
+
 
 
 
