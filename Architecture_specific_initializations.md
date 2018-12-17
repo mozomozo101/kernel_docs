@@ -6,6 +6,18 @@
 カーネルコマンドラインをパースし、その内容に応じた処理を行うことができる。
 設定可能なカーネルコマンドラインのパラメータは、[ここ](https://www.kernel.org/doc/Documentation/admin-guide/kernel-parameters.txt)に書かれてる。
 
+## コマンドラインのパース
+どうやら、コマンドラインパラメータと、それに対応する関数は、[\_\_setup_param()](https://elixir.bootlin.com/linux/v3.8.13/source/include/linux/init.h#L246) マクロを使って、このように登録するようだ。
+```
+char __setup_str_funcx = "xxx";
+static obs_kernel_param __setup_funcx {
+		__setup_str_funcx,  	// カーネルパラメータ(つまり、"xxx")
+		,funcx			// セットされる関数			
+		1 			// 0:not early, 1:early
+```
+ただ、その関数は、システムブート初期に実行するものと、そうでないものがある。
+earlyコマンドの場合は、early_param() マクロを使い、earlyフラグが1になるように、__setup_paramマクロを呼ぶ。
+early出ない場合は、__setup()マクロを使いearlyフラグを0にして登録する。
 
 ## パラメータに応じた処理の登録
 どのパラメータを受け取った場合にどんな処理を行うかを、あらかじめカーネルコード内に記述しておく必要がある。  
@@ -45,7 +57,7 @@ early_param ("earlyprintk", setup_early_printk)
 ```
 
 ## earlyな処理の実行
-early_param() で登録されたearlyな関数を実行するには、parse_early_param() を呼ぶ。  
+カーネルは、early_param() で登録されたearlyな関数を実行するには、[parse_early_param()を呼ぶ](https://elixir.bootlin.com/linux/latest/source/init/main.c#L571) 。  
 すると、ブート時のコマンドラインをパースした上で、下記のように複数の関数を経て、最終的に
 [do_early_param()](https://github.com/torvalds/linux/blob/16f73eb02d7e1765ccab3d2018e0bd98eb93d973/init/main.c#L440)
 が呼ばれる。  
