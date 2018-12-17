@@ -10,15 +10,15 @@
 ## パラメータに応じた処理の登録
 どのパラメータを受け取った場合にどんな処理を行うかを、あらかじめカーネルコード内に記述しておく必要がある。  
 これは、[early_param](https://elixir.bootlin.com/linux/latest/source/include/linux/init.h#L268) マクロを使って行う。  
-このマクロは、以下の形をとる。
+このマクロは、以下のように展開されていく。
 ```
-early_param ("xxx", funcx) 
-```
-* xxx: コマンドラインのパラメタ名
-* funcx: xxxがパラメタとして与えられた場合に呼ばれる関数。
+// xxx: コマンドラインのパラメタ名
+// funcx: xxxがパラメタとして与えられた場合に呼ばれる関数。
 
-このマクロは、結果的に下記のように展開される。  
-```
+early_param ("xxx", funcx) 
+↓
+__stup_param("xxx", funcx, funcx, 1)    // 第4引数は、0: not early, 1: early
+↓
 char __setup_str_funcx = "xxx";
 
 static obs_kernel_param __setup_funcx {
@@ -26,7 +26,9 @@ static obs_kernel_param __setup_funcx {
 		,funcx			// セットされる関数			
 		1 			// 0:not early, 1:early
 }
+
 ```
+
 つまり、[obs_kernel_param](https://elixir.bootlin.com/linux/latest/source/include/linux/init.h#L241)
 構造体により、early処理対象となるブートパラメータと、それがセットされた場合に実行される関数が紐づけられている。
 earlyprintk の場合、[このように](https://elixir.bootlin.com/linux/v4.20-rc5/source/arch/arm/kernel/early_printk.c#L50)
