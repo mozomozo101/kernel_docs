@@ -142,9 +142,9 @@ DTをではplatform deviceという概念は無いが、それはちょうど、
 この時、以下の前提がある。
 * compatibleプロパティを持ったノードはデバイスを表す
 * DTのrootに存在するノードは、プロセッサバスに直接接続されているデバイスか、その他雑多なデバイスを表す
-こうして見つかったデバイスを、platform_deviceとして登録するのだ。
-
-
+こうして見つかったデバイスを、platform_deviceとして登録するのだ。  
+  
+Why is using a platform_device for these nodes a safe assumption?
 
 
 
