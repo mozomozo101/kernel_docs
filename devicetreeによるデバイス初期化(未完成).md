@@ -147,7 +147,19 @@ DTをではplatform deviceという概念は無いが、それはちょうど、
 Why is using a platform_device for these nodes a safe assumption?
 
 
+# 補足
+## デバイスツリーのノード情報取得について
+ノード内に作る項目名は、勝手に付けて良いのか謎だったけど、
+ちゃんと、名前を指定して取得するための関数が用意されてた。
+javascriptで、htmlの要素や属性を取得する感じだと思った。
+http://masahir0y.blogspot.com/2014/05/device-tree_28.html
 
+例えば、renesas rs72100 の場合。  
+[ここ](https://elixir.bootlin.com/linux/v4.9/source/arch/arm/boot/dts/r7s72100.dtsi#L84)に、clock-output-names なんて言う項目がある。  
+これは、[カーネルソースのココらへん](https://elixir.bootlin.com/linux/v4.9/source/drivers/clk/renesas/clk-rcar-gen2.c#L375)で、こんな感じで読み込んでる。
+```
+num_clks = of_property_count_strings(np, "clock-output-names");
+```
 
 
 
