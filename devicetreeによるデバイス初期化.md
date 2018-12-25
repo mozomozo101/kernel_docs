@@ -36,7 +36,7 @@ compatibleに複数のマシン名を入れておくのは、同じSoCファミ�
 
 
 ## ランタイム設定
-ARMでは、ボードに対応するmachine_descが選択された後、ブート初期におけるデバイスツリーのスキャンは、[setup_machine_fdt()(https://elixir.bootlin.com/linux/v4.19.9/source/arch/arm/kernel/devtree.c#L218)が行う。
+ARMでは、ボードに対応するmachine_descが選択された後、ブート初期におけるデバイスツリーのスキャンは、[setup_machine_fdt()](https://elixir.bootlin.com/linux/v4.19.9/source/arch/arm/kernel/devtree.c#L218)が行う。
 ここでは、そのスキャンに関する説明をする。
 
 DTは、カーネルパラメータやinitrdイメージの位置などをカーネルに伝える役割もある。
@@ -57,16 +57,19 @@ early_init_dt_scan_root() は、address-cells や size-cells の値を、
 early_init_dt_scan_memory() は、memoryノードを、それぞれパースしていく。 
 
 ## デバイスの登録
-ボードが識別され、初期設定データが解析されると、カーネルの初期化は通常の方法で進める。
-その中で、machine_desc構造体内に登録されている.init_early(), .init_irq(), .init_machine() などが呼ばれる。
-名前の通り、.init_early() はブート初期の段階で必要なマシンのセットアップを、.init_irq() は割り込み設定を行う。
-そしてその中で、DTから必要なデータを取り出すために、DTのクエリ関数（include/linux/of\*.h 内の of_\*関数）を呼ぶことができる。
+ボードが識別され、初期設定データが解析されると、カーネルの初期化は通常の方法で進める。  
+その中で、machine_desc構造体内に登録されている.init_early(), .init_irq(), .init_machine() などが呼ばれる。  
+名前の通り、.init_early() はブート初期の段階で必要なマシンのセットアップを、.init_irq() は割り込み設定を行う。  
+そしてその中で、DTから必要なデータを取り出すために、[DTのクエリ関数](http://masahir0y.blogspot.com/2014/05/device-tree_28.html)（include/linux/of\*.h 内の of_\*関数）を呼ぶことができる。
 
-特に注目するべきは、init_machine() で、これは、DTををパースすることでデバイスのリストを取得し、それらをデバイスとして登録する。
-DT以前は、ボードファイルを使って、platform_device等を使って静的に定義していたが、DTを使うと、これらを動的に生成できるようになるのだ。
-ここでは簡単な例として、platform_deviceをDTを使って表現してみる。
-DTをではplatform deviceという概念は無いが、ルートに配置されたデバイスノードと、バスノードにぶら下がった子ノードで表現される。
-ここでは、NVIDIAのTegraボードを例にする。
+特に注目するべきは、init_machine() だ。  
+これは、Linuxデバイスモデルにプラットフォームに関するデータを登録する役割を果たす。  
+その方法として、DT以前は、ボードファイルにハードコードされたデバイスのデータを一括登録するという方法を採っていた。  
+しかしDTを使うと、デバイスのリストをDTから取得し、それらを動的に登録できるようになるのだ。  
+
+ここでは簡単な例として、init_machine() がplatform_deviceを登録するケースを考える。    
+DTをではplatform deviceという概念は無いが、それはちょうど、ルートに配置されたデバイスノードと、バスノードにぶら下がった子ノードで表現される。
+ここでは、NVIDIAのTegraボードを例にする。  
 
 ```
 /{
@@ -131,7 +134,17 @@ DTをではplatform deviceという概念は無いが、ルートに配置され
 	};
 };
 ```
-.init_machine() において、Tegraボード用のコードは、compatibleプロパティを持ったノードを探し、それらに対し、platform_deviceを作成していく。
+.init_machine() は、ここから、platform_deviceを作成するべきノードを決定する。  
+しかし、このDTをを見る限り、各ノードがどのようなデバイスを表現しているかわからない。
+
+その鍵となるのが、compatileプロパティだ。  
+カーネルは、rootから始まり、compatible というプロパティを持ったノードを探していく。  
+この時、以下の前提がある。
+* compatibleプロパティを持ったノードはデバイスを表す
+* DTのrootに存在するノードは、プロセッサバスに直接接続されているデバイスか、その他雑多なデバイスを表す
+こうして見つかったデバイスを、platform_deviceとして登録するのだ。
+
+
 
 
 
