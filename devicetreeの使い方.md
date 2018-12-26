@@ -90,8 +90,75 @@ soc {
 extenal-bus には、ethernet、i2c、flashなどのデバイスがぶら下がってるということ。
 
 ### ラベル  
-上での、pic_3:  みたいなやつ。  
-他の場所で  <&ipc_3> のように参照すると、そのラベルのフルパス （/sor/pic_3@100）が、&pic_3 のように参照すると、そのノードへの通し番号（自動生成）になる。この通し番号を、phandleと言うみたい。
+上での、pic_3: みたいなやつ。  
+他ノードから参照するために使う。
+
+<&ipc_3> のように参照すると、そのラベルは後述するphandleに変換される。
+&pic_3 のように参照すると、そのノードへのフルパスとなる。
+
+```
+        soc {
+	        ...
+                pic_3: pic@100 {
+			reg = < 0x100 0x20 >;
+                        interrupt-controller;
+                };
+		uart {
+			interrupt-parent = < &pic_3 >;
+			interrupt-parent-path =  &pic_3 ;
+			
+		};
+        };
+```
+は、このように変換される。
+```
+	soc {
+		...
+		pic_3: pic@100 {
+			reg = <0x100 0x20>;
+			interrupt-controller;
+			linux,phandle = <0x1>;
+			phandle = <0x1>;
+		};
+		uart {
+			interrupt-parent = <0x1>;
+			interrupt-parent-path = "/soc/pic@100";
+		};
+	};
+```
+このように、ラベルを使ったノードを参照は、ノードのプロパティを後から変更する場合によく使う。
+これは、soc/pic@100 の regの値を変更する様子。
+
+```
+$ cat example_label_b.dts 
+
+        soc {
+		#address-cells = < 0x1 >;
+		#size-cells = < 0x1 >;
+
+                pic_3: pic@100 {
+			reg = <0x100 0x20 >;
+                        interrupt-controller;
+                };
+
+        };
+	&pic_3 {
+		reg = <0x200 0x30 >;
+	};
+
+
+$ dtc -O dts example_label_b.dts 
+	soc {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+
+		pic_3: pic@100 {
+			reg = <0x200 0x30>;    ← 書き換わってる
+			interrupt-controller;
+		};
+	};
+``` 
+
 
 ### phandle  
 各ノードを識別するための通し番号で、デバイスツリー内で一意。
