@@ -23,3 +23,123 @@ https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
     * あくまでデバッグ用。
 
 
+■ dtb, dts, dtc
+Device Source Tree（DTS）を記述して、
+Device Tree Compiler（DTC）でコンパイルすると、
+Device Tree Blob（DTB）が出来上がる。
+このdtbを、ブート時にカーネルへ渡す。
+
+これで中身見れる。
+dtc -I dtb -O dts Image-r8a7795-salvator-x.dtb
+
+
+## 書き方
+https://elinux.org/Device_Tree_Usage  
+https://elinux.org/Device_Tree_Mysteries#Labels  
+http://masahir0y.blogspot.com/2014/05/device-tree.html  
+
+```
+/dts-v1/;
+
+/ {
+    compatible = "acme,coyotes-revenge";	
+
+    cpus {
+        cpu@0 {
+            compatible = "arm,cortex-a9";
+        };
+        cpu@1 {
+            compatible = "arm,cortex-a9";
+        };
+    };
+};
+
+external-bus {
+        ethernet@0,0 {
+            compatible = "smc,smc91c111";
+        };
+
+        i2c@1,0 {
+            compatible = "acme,a1234-i2c-bus";
+            rtc@58 {
+                compatible = "maxim,ds1338";
+            };
+        };
+
+        flash@2,0 {
+            compatible = "samsung,k8f1315ebm", "cfi-flash";
+        };
+};
+
+soc {
+	#address-cells = < 0x1 >;
+	#size-cells = < 0x1 >;
+        pic_3: pic@100 {
+		reg = < 0x100 0x20 >;
+               	interrupt-controller;
+	 };
+	uart {
+		interrupt-parent = < &pic_3 >;
+		interrupt-parent-path =  &pic_3 ;
+	};
+};
+```
+
+### ノードの階層構造について  
+バスと、その下にぶら下がっているデバイスという構成。
+extenal-bus には、ethernet、ｉ２ｃ、flashなどのデバイスがぶら下がってるということ。
+
+### ラベル  
+上での、pic_3:  みたいなやつ。  
+他の場所で  <&ipc_3> のように参照すると、そのラベルのフルパス （/sor/pic_3@100）が、&pic_3 のように参照すると、そのノードへの通し番号（自動生成）になる。この通し番号を、phandleと言うみたい。
+
+### phandle  
+各ノードを識別するための通し番号で、デバイスツリー内で一意。
+他のノードがそのノードを参照するときに使う。  
+
+```
+pic@10000000 {
+              phandle = < 1 >;
+              interrupt-controller;
+      };
+```
+ここで、値が1のphandleが定義された。  
+他のデバイスは、このpicノードを、`interrupt-parent = < 1 >;`で参照できる。
+
+
+### ノード名
+```
+任意の文字列[@<unit-address]
+```
+のフォーマット。  
+unit-addressは、そのデバイスにアクセスするための先頭アドレス（アドレスが割り当てられている場合）。
+後述の reg で書かれた先頭アドレスに成る。
+
+### compatible
+デバイス識別用文字列。  
+カーネルが、そのデバイスに紐づくドライバを特定するために使うので、必須。  
+```
+compatible = "メーカー名,モデル名"
+```
+
+### reg
+デバイスが使用するアドレス空間。複数指定可能。
+```
+reg = <address1 length1 [address2 length2][addres3 length3]>  
+または  
+reg = <address>  
+```
+
+### interrupts
+デバイスが生成する割り込みの番号と、割り込みレベル情報。
+```
+interrupts = <0xA 8>
+```
+0xA：割り込み番号  
+8：
+
+### power-domains
+よくわからないけど、SoCでは、電力管理の単位を、幾つかに分割してるらしい。
+これは、各区画で調度良い電力を提供することで、省電力につなげるのが目的らしい。
+power-domains は、この電力管理をするデバイスに関するデバイスが繋がるバスみたい。
+	
