@@ -1,37 +1,6 @@
 
 https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
 
-# Device tree
-## 
-
-
-## 使い方
-ブートローダがDevice Treeを・・・
-* サポートしている場合
-    * カーネルとDTイメージをロードして、カーネルを起動する
-    * device tree以前とは異なり、r1レジスタは使わない
-    * DTBのアドレス、カーネルパラメータ等をr2レジスタに入る。
-    * bootm <*kernel addr*> <*dtb addr*>
-* サポートしてない場合
-    * CONFIG_ARM_APPENDED_DTB をyにしてカーネルをビルド
-    * kernelに、「kernelイメージのすぐうしろにDTBがあるから、探してね」と伝えられる
-    * kernel + DTB は、自分で用意する必要あり
-    ```
-    $ cat arch/arm/boot/zImage arch/arm/boot/dts/myboard.dtb >> my-zImage
-    $ mkimage ... -d my-zImage my-uImage
-    ```
-    * あくまでデバッグ用。
-
-
-■ dtb, dts, dtc
-Device Source Tree（DTS）を記述して、
-Device Tree Compiler（DTC）でコンパイルすると、
-Device Tree Blob（DTB）が出来上がる。
-このdtbを、ブート時にカーネルへ渡す。
-
-これで中身見れる。
-dtc -I dtb -O dts Image-r8a7795-salvator-x.dtb
-
 
 ## 書き方
 https://elinux.org/Device_Tree_Usage  
@@ -84,6 +53,8 @@ soc {
 	};
 };
 ```
+
+### dtsとdtsi
 
 ### ノードの階層構造について  
 バスと、その下にぶら下がっているデバイスという構成。  
@@ -229,3 +200,30 @@ interrupts = <0xA 8>
 これは、各区画で調度良い電力を提供することで、省電力につなげるのが目的らしい。
 power-domains は、この電力管理をするデバイスに関するデバイスが繋がるバスみたい。
 	
+	
+## 使い方
+ブートローダがDevice Treeを・・・
+* サポートしている場合
+    * カーネルとDTイメージをロードして、カーネルを起動する
+    * device tree以前とは異なり、r1レジスタは使わない
+    * DTBのアドレス、カーネルパラメータ等をr2レジスタに入る。
+    * bootm <*kernel addr*> <*dtb addr*>
+* サポートしてない場合
+    * CONFIG_ARM_APPENDED_DTB をyにしてカーネルをビルド
+    * kernelに、「kernelイメージのすぐうしろにDTBがあるから、探してね」と伝えられる
+    * kernel + DTB は、自分で用意する必要あり
+    ```
+    $ cat arch/arm/boot/zImage arch/arm/boot/dts/myboard.dtb >> my-zImage
+    $ mkimage ... -d my-zImage my-uImage
+    ```
+    * あくまでデバッグ用。
+
+
+## dtb, dts, dtc
+Device Source Tree（DTS）を記述して、
+Device Tree Compiler（DTC）でコンパイルすると、
+Device Tree Blob（DTB）が出来上がる。
+このdtbを、ブート時にカーネルへ渡す。
+
+これで中身見れる。
+dtc -I dtb -O dts Image-r8a7795-salvator-x.dtb
