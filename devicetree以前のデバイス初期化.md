@@ -20,6 +20,7 @@ SoCファイルには、各ペリフェラルの初期化API、ベースアド�
 この初期化APIの中でピン設定などを行い、platform_device_register() 等でデバイスを登録する。  
 そしてボードごとに用意されたボードファイルは、必要な分だけSoC用ファイルのペリフェラル初期化APIを呼ぶ。  
 early_param() を使って、ドライバを起動初期段階で登録しておけば、この時点でドライバのprobe()関数が呼ばれる。  
+![socとboard](https://github.com/mozomozo101/kernel_docs/blob/edit/images/soc%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%A8board%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB.jpg)
 
 まとめると、流れはこんな感じ。  
 * bootloaderが、r1レジスタにマシンIDを、r2レジスタに[ATAG(Arm TAG)](http://www.katsuster.net/index.php?arg_act=cmd_show_diary&arg_date=20150509&arg_range=1&arg_direction=0)へのポインタを入れ、kernel_entry()を呼ぶ
