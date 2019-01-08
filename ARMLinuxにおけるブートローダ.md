@@ -24,6 +24,9 @@ zImageにはヘッダがあり、次のものが含まれる。
 | 0x28 | start address | The address the zImage starts at |
 | 0x2C | end address | The address the zImage ends at |
 
+zImageのロード位置はどこでも良いが、習慣的に、物理RAMの先頭から0x8000（32KB）の位置が使われる。
+これは、メモリの先頭あたりに置かれているであろう諸々のデータを壊さないようにするため。
+
 ### initial RAMのロード
 
 ### コンソール初期化
