@@ -70,8 +70,9 @@ arch/arm/boot/dts/r7s72100-rztoaster.dts
 
 ## カーネルの展開アドレスの変更
 [RZ-RSKボードのマニュアル](https://www.renesas.com/jp/ja/doc/products/tool/doc/004/r20ut3007jg0100-rskrza1h-usermanual.pdf)によると、SDRAMはCS2（0x08000000）に割り当てられている。
-従って、uImageの展開部分のコードは下記のようになる。
-（この処理はカーネルの1機能なので、仮想アドレスが使われるため、0xf0000000が加算されている）。
+
+ZRELADDRは、解凍されたカーネルイメージのロードアドレスを表す。
+CONFIG_AUTO_ZRELADDR=y の場合は、0xf8000000 のマスクを付加して決定される。
 
 arch/arm/boot/compressed/head.S
 ```
@@ -85,9 +86,9 @@ arch/arm/boot/compressed/head.S
 #endif
 ```
 
-従って、手元のカスタムボードのSDRAMがCS3（0x0C000000）の場合、このように修正する。
+手元のカスタムボードのSDRAMがCS3（0x0C000000）だったりした場合、このように修正する。
 * CONFIG_AUTO_ZRELADDR=n にする
-* zreladdrを手動設定する
+* ZRELADDRを手動設定する
 	arch/arm/mach-shmobile/Makefile.boot  
 ```
 	loadaddr-y :=
