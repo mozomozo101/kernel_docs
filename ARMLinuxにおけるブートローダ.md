@@ -42,6 +42,8 @@ ATAGSに含まれるタグには、以下のものがある。
 * カーネルが使用するメモリ領域
 * initramfsの位置
 
+![atags](https://github.com/mozomozo101/kernel_docs/blob/edit/images/IMG_1141.jpg)
+
 ## マシンタイプ
 カーネルに対して、どんなマシン上で動いているかを知らせる必要がある。
 これを表すマシンIDのは、[ARM Linuxのサイト](http://www.arm.linux.org.uk/developer/machines/)に書かれている。
