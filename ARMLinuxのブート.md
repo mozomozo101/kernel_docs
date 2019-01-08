@@ -71,3 +71,4 @@ http://fowlrat.hatenablog.com/entry/2014/08/31/011056
 => fatload usb 0 0x0C007FC0 /uImage
 => bootm 0x0C007FC0
 ```
+![u-boot boot](https://github.com/mozomozo101/kernel_docs/blob/edit/images/IMG_1142.jpg)
