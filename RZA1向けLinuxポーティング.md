@@ -1,4 +1,8 @@
-[これ](https://renesasrulz.com/rz/m/files_linux/3262/download)のメモ。
+RZA1向けBSPのポーティングに関するメモ。  
+[Linux4.9版](https://renesasrulz.com/rz/m/files_linux/3262/download)  
+[Linux3.8版](https://renesasrulz.com/rz/m/files_linux/2719/download)  
+
+
 
 ## BSPの変換
 
@@ -64,3 +68,37 @@ arch/arm/boot/dts/r7s72100-rztoaster.dts
 ![pinctl](https://github.com/mozomozo101/kernel_docs/blob/edit/images/pinctl.png)
 
 
+## カーネルの展開アドレスの変更
+[RZ-RSKボードのマニュアル](https://www.renesas.com/jp/ja/doc/products/tool/doc/004/r20ut3007jg0100-rskrza1h-usermanual.pdf)によると、SDRAMはCS2（0x08000000）に割り当てられている。
+従って、uImageの展開部分のコードは下記のようになる。
+（この処理はカーネルの1機能なので、仮想アドレスが使われるため、0xf0000000が加算されている）。
+
+arch/arm/boot/compressed/head.S
+```
+#ifdef CONFIG_AUTO_ZRELADDR
+	@ determine final kernel image address
+	mov r4, pc
+	and r4, r4, #0xf8000000
+	add r4, r4, #TEXT_OFFSET
+#else
+	ldr r4, =zreladdr
+#endif
+```
+
+従って、手元のカスタムボードのSDRAMがCS3（0x0C000000）の場合、このように修正する。
+* CONFIG_AUTO_ZRELADDR=n にする
+* zreladdrを手動設定する
+	arch/arm/mach-shmobile/Makefile.boot  
+```
+	loadaddr-y :=
+	...
+	
+	loadaddr-$(CONFIG_MACH_RSKRZA1) += 0x08008000
+	loadaddr-$(CONFIG_MACH_MYBOARD) += 0x0C008000	<< 追加
+	
+	...
+	
+	__ZRELADDR := $(sort $(loadaddr-y))
+	zreladdr-y += $(__ZRELADDR)
+	...
+```
