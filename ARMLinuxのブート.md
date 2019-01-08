@@ -1,3 +1,4 @@
+# ブートローダ概要
 ここの翻訳、まとめ。  
 http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_MEM  
 
@@ -56,3 +57,17 @@ ATAGSに含まれるタグには、例えば以下のものがある。
 ### カーネルの起動
 カーネルに処理を渡す際、CPUのレジスタやMMU、キャッシュ等が適切に設定されている必要がある。
 詳細は参照元URL。
+
+
+# u-bootを使ったカーネルブート
+http://fowlrat.hatenablog.com/entry/2014/08/31/011056
+
+[カーネルのロード](#3-aaa)に書いたとおり、zImageは、RAMの先頭から0x8000の位置に展開する。
+ただし、u-boot専用のイメージフォーマットであるuImageには、zImageの前に64byte(0x40)のヘッダが付いている。
+そのため、uImiageのロードアドレスは、(RAMの先頭 + 0x8000 - 0x40)となる。
+
+```
+=> usb start
+=> fatload usb 0 0x0C007FC0 /uImage
+=> bootm 0x0C007FC0
+```
