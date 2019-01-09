@@ -2,19 +2,16 @@ RZA1向けBSPのポーティングに関するメモ。
 [Linux4.9版](https://renesasrulz.com/rz/m/files_linux/3262/download)  
 [Linux3.8版](https://renesasrulz.com/rz/m/files_linux/2719/download)  
 
+# BSPのポーティング
 
-
-## BSPの変換
-
-### add_new_board.sh を実行
-これが生成される
+add_new_board.sh を実行すると、これが生成される
 ```
 arch/arm/boot/dts/r7s72100-rztoaster.dts
 arch/arm/mach-shmobile/board-rztoaster.c
 arch/arm/configs/rztoaster_defconfig
 ```
 
-### やること
+## やること
 * ピン設定
     * add_new_board.sh が生成したdtsにはピン設定が書かれているが、それは最低限のものなので、必用に応じて追記する。
 
@@ -103,3 +100,8 @@ arch/arm/boot/compressed/head.S
 	zreladdr-y += $(__ZRELADDR)
 	...
 ```
+
+# ペリフェラルの有効化
+ethernetを有効にする場合の作業例
+
+
