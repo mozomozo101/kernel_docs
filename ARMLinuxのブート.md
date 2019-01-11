@@ -55,7 +55,7 @@ ATAGSに含まれるタグには、例えば以下のものがある。
 * カーネルが使用するメモリ領域
 * initramfsの位置
 
-![atags](https://github.com/mozomozo101/kernel_docs/blob/edit/images/IMG_1141.jpg)
+![atags](https://github.com/mozomozo101/kernel_docs/blob/master/images/IMG_1141.jpg)
 
 ## マシンタイプ
 カーネルに対して、どんなマシン上で動いているかを知らせる必要がある。
