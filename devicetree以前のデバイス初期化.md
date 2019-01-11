@@ -7,7 +7,7 @@ https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
 多くの半導体ベンダが、ARMコアにいろんなペリフェラルをくっつけて、SoCとして販売している。
 ペリフェラルには、UART、バスコントローラ（USB, SPI, I2C, PCI）、イーサネットコントローラなどなどたくさんある。
 ペリフェラルは、SoC内にもボード上にもある。
-その様子を表した画像が[こちら](https://github.com/mozomozo101/kernel_docs/blob/master/soc-board-peripherals.png)。
+その様子を表した画像が[こちら](https://github.com/mozomozo101/kernel_docs/blob/master/images/soc-board-peripherals.png)。
 
 同一のSoCであっても、ボードが違えば、そこに載ったペリフェラルや設定が異なる。  
 そのため、微妙に内容が異なる大量のボードファイルがLinuxソースツリーに次々と入り込み、そのカオスな状態にLinusは怒った。
@@ -20,7 +20,7 @@ SoCファイルには、各ペリフェラルの初期化API、ベースアド�
 この初期化APIの中でピン設定などを行い、platform_device_register() 等でデバイスを登録する。  
 そしてボードごとに用意されたボードファイルは、必要な分だけSoC用ファイルのペリフェラル初期化APIを呼ぶ。  
 early_param() を使って、ドライバを起動初期段階で登録しておけば、この時点でドライバのprobe()関数が呼ばれる。  
-![socとboard](https://github.com/mozomozo101/kernel_docs/blob/edit/images/soc%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%A8board%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB.jpg)
+![socとboard](https://github.com/mozomozo101/kernel_docs/blob/edit/images/soc-file_board-file.jpg)
 
 まとめると、流れはこんな感じ。  
 * bootloaderが、r1レジスタにマシンIDを、r2レジスタにATAGへのポインタを入れ、kernel_entry()を呼ぶ
