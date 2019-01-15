@@ -26,6 +26,7 @@ https://stackoverflow.com/questions/471191/why-compile-python-code
 
 ### どんな感じ？
 buildコマンドによって生成されたファイルは、デフォルトでは、実行したディレクトリ配下に置かれる。
+[CやC++で書かれた拡張モジュール](https://docs.python.jp/3/extending/extending.html)が含まれる場合は、`[lib,temp].<plat>`に入る。
 ```
 --- build/ --- lib/
 or
@@ -37,6 +38,7 @@ or
 ```
 python setup.py build --build-base=/path/to/pybuild/foo-1.0
 ```
+※ CやC++で書かれた拡張モジュール: C等で書いたモジュールを組み込むことで、pythonが直接実行できないような処理を行える。
 
 ## install
 `build/lib/`や`build/lib.<plat>`配下のファイルを、標準的なサードパーティ製モジュールの配置場所にコピーする。
