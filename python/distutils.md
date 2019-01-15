@@ -16,11 +16,20 @@ python setup.py install
 ```
 
 ## build
+
+### そもそもpythonのビルドとは
+pythonでは、実行時に.pyファイルを、バイトコードである.pycにコンパイルする。
+一旦.pycを生成すれば、以降はコンパイルが不要になり、実行を高速化できるというわけ。
+実際、pythonのモジュール置き場である`/usr/lib/python2.7` などを見ると、同名の.pyと.pycが存在している。  
+なお、メインとなる.pyは、.pycの有無に関わらず、必ずコンパイルされる関係で、モジュール置き場にも .pycは存在しない。
+https://stackoverflow.com/questions/471191/why-compile-python-code
+
+### どんな感じ？
 buildコマンドによって生成されたファイルは、デフォルトでは、実行したディレクトリ配下に置かれる。
 ```
 --- build/ --- lib/
 or
---- build/ --- lib.<plat>/    // 拡張モジュール
+--- build/ --- lib.<plat>/    // 拡張モジュール（.py, .pyc）
                temp.<plat>/   // 中間生成オブジェクトなど
 ```
 
