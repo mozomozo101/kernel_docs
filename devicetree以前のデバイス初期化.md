@@ -24,7 +24,7 @@ early_param() を使って、ドライバを起動初期段階で登録してお
 
 まとめると、流れはこんな感じ。  
 * bootloaderが、r1レジスタにマシンIDを、r2レジスタにATAGへのポインタを入れ、kernel_entry()を呼ぶ
-    * bootloaderやATAGについては[こちら](https://github.com/mozomozo101/kernel_docs/blob/edit/ARMLinux%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%83%96%E3%83%BC%E3%83%88%E3%83%AD%E3%83%BC%E3%83%80.md)にまとめた
+    * bootloaderやATAGについては[こちら](https://github.com/mozomozo101/kernel_docs/blob/edit/ARMLinuxのブート.md)にまとめた
 * kernelが起動し、受け取ったマシンIDに紐付いたinit_machine() を呼ぶ
 * ボードファイルは、デバイスや、ボード固有の情報を登録するために、SoC用のAPIを呼ぶ
 * SoCファイルは、ピンマルチ設定したり、デバイスをplatformバスに登録する

@@ -446,7 +446,7 @@ wake_up_interruptible (&wq);
 
 # 練習問題
 
-ソースは[ここ](https://github.com/mozomozo101/kernel_docs/tree/master/sources/Character_device_structure)に置いた。
+ソースは[ここ](https://github.com/mozomozo101/kernel_docs/tree/master/sources/Character_Device_Driver.md)に置いた。
 
 ## キャラクタデバイスの生成
 readすると適当な文字列を返すキャラクタデバイスを作成する

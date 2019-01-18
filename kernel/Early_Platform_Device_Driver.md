@@ -4,7 +4,7 @@ https://www.kernel.org/doc/Documentation/driver-model/platform.txt
 https://lwn.net/Articles/314900/  
 
 Early platform interface を使うと、システムの起動初期段階で、platform device driver にplatform data を渡すことができる。  
-そのためには、予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)を使って、これらの処理をシステム初期段階で行うよう、登録しておく必要がある。
+そのためには、予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Kernel_Initialization.md)を使って、これらの処理をシステム初期段階で行うよう、登録しておく必要がある。
 
 ### early platform device データの登録  
 platform deviceは
@@ -12,9 +12,9 @@ platform deviceは
 を使って、当該デバイスをearly_platform_device_listというearly platform device のリストに追加する。
 
 ### カーネルコマンドラインのパース
-[parse_early_param()](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)
+[parse_early_param()](https://github.com/mozomozo101/kernel_docs/blob/master/Kernel_Initialization.md)
 を使うことで、カーネルのコマンドラインをパースし、それに紐付けられた処理が実行される。  
-予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Architecture_specific_initializations.md)によって、platform deviceを登録する処理を紐付けておけば、そこで登録されたplatform device は、起動の初期段階でシステムに登録される。
+予め [early_param() マクロ](https://github.com/mozomozo101/kernel_docs/blob/master/Kernel_Initialization.md)によって、platform deviceを登録する処理を紐付けておけば、そこで登録されたplatform device は、起動の初期段階でシステムに登録される。
 
 
 ### ドライバの登録（自信無い）
