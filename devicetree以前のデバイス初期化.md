@@ -6,7 +6,7 @@ https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
 
 多くの半導体ベンダが、ARMコアにいろんなペリフェラルをくっつけて、SoCとして販売している。
 ペリフェラルには、UART、バスコントローラ（USB, SPI, I2C, PCI）、イーサネットコントローラなどなどたくさんある。
-ペリフェラルは、SoC内にもボード上にもある。
+ペリフェラルは、SoC内にもボード上にもある。  
 [こんな感じ](https://github.com/mozomozo101/kernel_docs/blob/master/images/soc-board-peripherals.png)。
 
 同一のSoCであっても、ボードが違えば、そこに載ったペリフェラルや設定が異なる。  
