@@ -7,7 +7,7 @@ https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf
 多くの半導体ベンダが、ARMコアにいろんなペリフェラルをくっつけて、SoCとして販売している。
 ペリフェラルには、UART、バスコントローラ（USB, SPI, I2C, PCI）、イーサネットコントローラなどなどたくさんある。
 ペリフェラルは、SoC内にもボード上にもある。
-その様子を表した画像が[こちら](https://github.com/mozomozo101/kernel_docs/blob/master/images/soc-board-peripherals.png)。
+[こんな感じ](https://github.com/mozomozo101/kernel_docs/blob/master/images/soc-board-peripherals.png)。
 
 同一のSoCであっても、ボードが違えば、そこに載ったペリフェラルや設定が異なる。  
 そのため、微妙に内容が異なる大量のボードファイルがLinuxソースツリーに次々と入り込み、そのカオスな状態にLinusは怒った。
@@ -24,7 +24,7 @@ early_param() を使って、ドライバを起動初期段階で登録してお
 
 まとめると、流れはこんな感じ。  
 * bootloaderが、r1レジスタにマシンIDを、r2レジスタにATAGへのポインタを入れ、kernel_entry()を呼ぶ
-    * bootloaderやATAGについては[こちら](https://github.com/mozomozo101/kernel_docs/blob/edit/ARMLinuxのブート.md)にまとめた
+    * bootloaderやATAGについては[こちら](https://github.com/mozomozo101/tech_memo/blob/master/ARMLinuxのブート.md)にまとめた
 * kernelが起動し、受け取ったマシンIDに紐付いたinit_machine() を呼ぶ
 * ボードファイルは、デバイスや、ボード固有の情報を登録するために、SoC用のAPIを呼ぶ
 * SoCファイルは、ピンマルチ設定したり、デバイスをplatformバスに登録する
