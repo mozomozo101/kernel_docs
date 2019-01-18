@@ -79,4 +79,4 @@ zImageを(RAMの先頭+0x8000)に置くため、uImiageのロードアドレス�
 => fatload usb 0 0x0C007FC0 /uImage
 => bootm 0x0C007FC0
 ```
-![u-boot boot](https://github.com/mozomozo101/kernel_docs/blob/edit/images/IMG_1142.jpg)
+![u-boot boot](https://github.com/mozomozo101/tech_memo/blob/master/images/IMG_1142.jpg)
