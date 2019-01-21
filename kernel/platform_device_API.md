@@ -22,7 +22,7 @@ PCIバスにつながったデバイスは、システムに対し、自分が�
 と理解した。
 
 ## Platform drivers
-platform device は、`struct platform_device` で表現される（linux/platform_device.h）。  
+platform device は、[struct platform_device](https://elixir.bootlin.com/linux/latest/source/include/linux/platform_device.h#L23) で表現される。  
 platform device は、仮想的な"platform bus" に接続され、ここに対応するドライバ（platform driver）が登録されることになる。
 
 ```
