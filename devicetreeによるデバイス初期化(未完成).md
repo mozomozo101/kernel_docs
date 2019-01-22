@@ -15,7 +15,17 @@ DeviceTree（DT）は、以下3つの目的のために使う。
 
 [setup_machine_fdt()](https://elixir.bootlin.com/linux/v4.19.9/source/arch/arm/kernel/devtree.c#L218) は、
 ブートローダから受け取ったDTのルートノードにあるcompatibleの値をキーとして、それにマッチするmachine_desc構造体を探していく。
-その際、比較には、各machine_desc構造体（arch/arm/include/asm/mach/arch.h）内のdt_compatに列挙された文字列を使う。  
+その際、比較には、各machine_desc構造体（arch/arm/include/asm/mach/arch.h）内のdt_compatに列挙された文字列を使う。
+
+```
+DT_MACHINE_START(R7S72100_DT, "Generic R7S72100 (Flattened Device Tree)")
+	.l2c_aux_val    = 0,
+	.l2c_aux_mask   = ~0,
+	.init_early	= shmobile_init_delay,
+	.init_late	= shmobile_init_late,
+	.dt_compat	= r7s72100_boards_compat_dt,
+MACHINE_END
+```
 
 compatibleには、マシンの正確な名前と、その後ろにオプションの名前が列挙されている。
 例えば TIのBeagleBoardと、その後継マシンであるBeagleBoard xM board は、
@@ -65,9 +75,12 @@ https://stackoverflow.com/questions/21014920/arm-linux-atags-vs-device-tree
 ここでは、そのスキャンに関する説明をする。
 
 ボードが識別され、初期設定データが解析されると、カーネルの初期化は通常の方法で進める。
-その中で、machine_desc構造体内に登録されている.init_early(), .init_irq(), .init_machine() などが呼ばれる。  
-名前の通り、.init_early() はブート初期の段階で必要なマシンのセットアップを、.init_irq() は割り込み設定を行う。  
-そしてその中で、DTから必要なデータを取り出すために、[DTのクエリ関数](http://masahir0y.blogspot.com/2014/05/device-tree_28.html)（include/linux/of\*.h 内の of_\*関数）を呼ぶことができる。
+その中で、
+[machine_desc](https://elixir.bootlin.com/linux/latest/source/arch/arm/include/asm/mach/arch.h#L27)
+構造体内に登録されている、初期設定関数が呼ばれる。
+この初期設定関数には、.init_early(), .init_irq(), .init_machine() などがあり、これらは、ボードごとに定義されている。  
+名前の通り、.init_early() はブート初期の段階で必要なマシンのセットアップを、.init_irq() は割り込み設定を行うはず。
+そしてその中で、DTから必要なデータを取り出すために、[DTのクエリ関数](http://masahir0y.blogspot.com/2014/05/device-tree_28.html)（include/linux/of\*.h 内の of_\*関数）を呼ばれるはずだ。
 
 特に注目するべきは init_machine() で、Linuxデバイスモデルにプラットフォームに関するデータを登録する役割を果たす。
 その方法として、DT以前は、ボードファイルにハードコードされたデバイスのデータを一括登録するという方法を採っていた。
