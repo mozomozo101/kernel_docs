@@ -22,9 +22,9 @@ zImageにはヘッダがあり、次のものが含まれる。
 
 | Offset | Value | Description |
 | ---- | ---- | ---- |
-| 0x24 | 0x016F2818 | Magic number used to identify this is an ARM Linux zImage |
-| 0x28 | start address | The address the zImage starts at |
-| 0x2C | end address | The address the zImage ends at |
+| 0x24 | 0x016F2818 | ARM Linux の zImage であることを表すマジックナンバ |
+| 0x28 | start address | zImageのロード位置（先頭） |
+| 0x2C | end address | zImageのロード位置（末尾） |
 
 zImageのロード位置はどこでも良いが、習慣的に、物理RAMの先頭から0x8000（32KB）の位置が使われる。
 これは、メモリの先頭あたりに置かれているであろう諸々のデータを壊さないようにするため。
