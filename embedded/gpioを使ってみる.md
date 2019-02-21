@@ -72,32 +72,55 @@ IRQ割り込みは、IRQ0〜7端子からの入力による割り込みで、GPI
 この割り込みのIDは、SoC依存。
 rza1の場合、マニュアル7.5章に書かれており、423番とのこと。
 
-## ドライバ
+## 割り込みハンドラ
 今までで、dipswの変化により割り込みが発生し、CPUには、割り込みIDとして423番が通知されることが分かった。
 ここで、request_irq()などを使い、割り込みベクタの423番に割り込みハンドラを登録するようなカーネルモジュール（ドライバ）を作ってロードしておく。
 そうすれば、dipswが変化した時に、対応する割り込みハンドラが呼ばれるようになる。
 
-割り込みハンドラは割り込みコンテキストで動作するため、できることが限られる。
-そのため、カーネルスレッドとしてworkqueueを発行するのが一般的。
+割り込みハンドラのボトムハーフの実装は、カーネルスレッドとしてworkqueueを発行するのが一般的。
 詳しくは、[こちら](https://github.com/mozomozo101/tech_memo/blob/master/kernel/%E5%89%B2%E3%82%8A%E8%BE%BC%E3%81%BF%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6.md)。
 
 # 既存のドライバを使う
-hello worldを表示する程度の割り込みハンドラを登録するだけなら、ドライバを自前で書くのも良い。
-しかし実際のデバイスドライバは、割り込みを上げたデバイスに関する情報を取得し、それをもとにゴニョゴニョすることが多い。
-これを１から自前で書くのは大変。
+
+## Linuxソースツリーのドライバ
+作成する割り込みハンドラがhello worldを表示する程度であれば、ドライバはいらない。
+しかし実践面では、デバイスドライバを登録しておき、割り込みを上げたデバイスに関する情報をもとにゴニョゴニョすることが多い。
+そのようなデバイスドライバを１から自前で書くのは大変。
 そのため、Linuxカーネルソースツリーには、様々なデバイスドライバが、[driver/](https://elixir.bootlin.com/linux/latest/source/drivers) に用意されている。
 これらのデバイスドライバは、それぞれにデバイスツリーの書き方が決まっており、それは全て[ドキュメント化](https://www.kernel.org/doc/Documentation/devicetree/bindings/)されている。
 
 今回は、dipswのOFF/ONの変化を、ユーザランドで検知してみたい。
 その目的に沿ったドライバとして、[gpio_keys](https://elixir.bootlin.com/linux/latest/source/drivers/input/keyboard/gpio_keys.c) を使っていこうと思う。
-gpio_keysデバイス用のデバイスツリーは[ここ](https://www.kernel.org/doc/Documentation/devicetree/bindings/input/gpio-keys.txt)に記載されている。
 
 ## 割り込みの通知
 dipswの変化による割り込みをgpio_keysドライバに通知するようにしたい。
 そのため、割り込み番号423番とgpio_keysドライバを対応させる。
-これは、デバイスツリーから行う。
+これはデバイスツリーから行う。
+gpio_keysデバイス用のデバイスツリーの書き方は、[ここ](https://www.kernel.org/doc/Documentation/devicetree/bindings/input/gpio-keys.txt)に記載されている。
 
+gpio-keysノード配下に、今回の目的であるdipsw用のノード dipsw を作成した。
 
+```
+       gpio-keys {
+               compatible = "gpio-keys";
+               status = "okay";
+               dipsw {
+                       label = "WPS";
+                       linux,code = <0x211>;
+                       interrupt-parent = <&gic>;
+                       interrupts = <GIC_SPI (423-32) IRQ_TYPE_EDGE_RISING>;
+               };
+       };
+```
+
+* interrupts  
+interruptsは、割り込みに関する情報で、各セルに何を書くかは割り込みコントローラ依存。  
+上記は、[rza1hで使用している割り込みコントローラのドキュメント](https://www.kernel.org/doc/Documentation/devicetree/bindings/interrupt-controller/arm%2Cgic.txt)を元に作成した。
+
+* linux,code  
+gpio-keysは、キーボード等のデバイスとしての仕様を想定している。
+linux,codeは、何のキーを押されたかを表すもので、そのコードは、[ここ](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/input-event-codes.h)で定義されている。
+（0x211は、WPSボタンが押されたことを示すコード。）
 
 
 
