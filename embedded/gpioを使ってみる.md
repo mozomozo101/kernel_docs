@@ -1,4 +1,5 @@
-rza1hを使ったボードで、dipswからGPIO経由で割り込みを上げるまでの流れ。
+rza1hを使ったボードで、dipswのOff/ONを、ユーザランド側で検知できるようにしたい。  
+そのための流れ。
 
 ## 全体の流れ
 ・GPIOの特定
@@ -73,11 +74,32 @@ rza1の場合、マニュアル7.5章に書かれており、423番とのこと�
 
 ## ドライバ
 今までで、dipswの変化により割り込みが発生し、CPUには、割り込みIDとして423番が通知されることが分かった。
-ここで、request_irq()などを使い、割り込みベクタの423番に割り込みハンドラを登録すれば、dipswが変化した時に、それが呼ばれるようになる。
+ここで、request_irq()などを使い、割り込みベクタの423番に割り込みハンドラを登録するようなカーネルモジュール（ドライバ）を作ってロードしておく。
+そうすれば、dipswが変化した時に、対応する割り込みハンドラが呼ばれるようになる。
 
 割り込みハンドラは割り込みコンテキストで動作するため、できることが限られる。
 そのため、カーネルスレッドとしてworkqueueを発行するのが一般的。
 詳しくは、[こちら](https://github.com/mozomozo101/tech_memo/blob/master/kernel/%E5%89%B2%E3%82%8A%E8%BE%BC%E3%81%BF%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6.md)。
+
+# 既存のドライバを使う
+hello worldを表示する程度の割り込みハンドラを登録するだけなら、ドライバを自前で書くのも良い。
+しかし実際のデバイスドライバは、割り込みを上げたデバイスに関する情報を取得し、それをもとにゴニョゴニョすることが多い。
+これを１から自前で書くのは大変。
+そのため、Linuxカーネルソースツリーには、様々なデバイスドライバが、[driver/](https://elixir.bootlin.com/linux/latest/source/drivers) に用意されている。
+これらのデバイスドライバは、それぞれにデバイスツリーの書き方が決まっており、それは全て[ドキュメント化](https://www.kernel.org/doc/Documentation/devicetree/bindings/)されている。
+
+今回は、dipswのOFF/ONの変化を、ユーザランドで検知してみたい。
+その目的に沿ったドライバとして、[gpio_keys](https://elixir.bootlin.com/linux/latest/source/drivers/input/keyboard/gpio_keys.c) を使っていこうと思う。
+gpio_keysデバイス用のデバイスツリーは[ここ](https://www.kernel.org/doc/Documentation/devicetree/bindings/input/gpio-keys.txt)に記載されている。
+
+## 割り込みの通知
+dipswの変化による割り込みをgpio_keysドライバに通知するようにしたい。
+そのため、割り込み番号423番とgpio_keysドライバを対応させる。
+これは、デバイスツリーから行う。
+
+
+
+
 
 
 
