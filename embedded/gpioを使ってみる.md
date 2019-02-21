@@ -18,10 +18,11 @@ SoCからは、外部とやりとりするための信号線が伸びている�
 その末端はピンと呼ばれ、ユーザが自由に使えるピンをGPIOと呼ぶ。
 
 SoCによるが、各GPIOには、それぞれ数種類の機能が割り振られていて、ユーザは、その中から使いたいものを選ぶことができる。
-例えば、以下はRZA1Hマニュアルの、P0_1に関する記載。
+例えば、以下はRZA1Hマニュアルの、ポート1_0に関する記載。
+![rza1h-gpios](https://github.com/mozomozo101/tech_memo/blob/master/images/rza1-gpios.png)
 
-RIIC0SCL: RIIC0シリアルクロック入出力端子
-IRQ0: IRQ0端子
+RIIC0SCL: RIIC0シリアルクロック入出力端子  
+IRQ0: IRQ0端子  
 
 RZA1の場合、GPIOポートは２通りのモードで使える。
 * 兼用モード
@@ -34,6 +35,7 @@ RZA1の場合、GPIOポートは２通りのモードで使える。
 ここで、手元のボードでどのGPIOを使うか考える。
 ボードのマニュアルによると、dipsw1(4)は、GPIO0_5に繋がっている。
 マニュアルでの記載は以下の通り。
+![rza1h-port0](https://github.com/mozomozo101/tech_memo/blob/master/images/rza1-port0.png)
 
 GPIO0_5には、IRQ機能が割り当てられていない。
 そのため、ポートモードとして設定して、そこへ入力があったら、割り込みとして通知するようにする。
