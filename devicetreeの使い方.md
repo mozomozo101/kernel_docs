@@ -426,3 +426,7 @@ Device Tree Blob（DTB）が出来上がる。
 
 これで中身見れる。
 dtc -I dtb -O dts Image-r8a7795-salvator-x.dtb
+
+# わからないこと
+interrupt-parent がGICを指していない場合の意味がよくわからない。
+interrupt-parent = <&gpoi0>とか。
