@@ -24,6 +24,12 @@ struct device ldd_bus = {
 ret = device_register(&ldd_bus);
 ```
 
+* 疑問
+バスをデバイスとしても登録しなきゃいけないのは何故だろう？  
+「device_register($ldd_bus)後、/sys/device/ldd0 が生成され、lddバスに接続されたデバイスが、その下に表示されるようになる」と書いてある。
+単にデバイスの親子関係を構築するだけなのだろうか？
+
+
 ## デバイス
 ```
 // lddデバイスの定義
