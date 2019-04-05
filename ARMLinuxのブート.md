@@ -68,12 +68,14 @@ zImageのロード位置はどこでも良いが、習慣的に、カーネル�
 なお、"console="オプションを使えば、カーネル側に明示的にシリアルポートを指定することもできる。
 
 ### 補足
-必要な初期化処理としては、ピン設定やUARTコントローラのレジスタ設定が考えられる。
-renesas rza1 starterkit の場合は、以下の位置でピン設定してる。  
-https://github.com/renesas-rz/rza_u-boot-2015.01/blob/4c0392eef0e602768b279d7bd256ae8229476cfc/board/renesas/rskrza1/rskrza1.c#L208
+u-bootで必要なデバイスの初期化処理としては、ピン設定、UARTコントローラやSDホストコントローラ等のレジスタ設定が考えられる。
+renesas rza1 starterkit の場合は、[ここでピン設定してる。](https://github.com/renesas-rz/rza_u-boot-2015.01/blob/4c0392eef0e602768b279d7bd256ae8229476cfc/board/renesas/rskrza1/rskrza1.c#L208)
 
-多分、レジスタ設定は、他の場所でやってると思う。  
-ちなみに、カーネルはカーネルで同じ処理を行う。
+デバイスのレジスタ設定は、[各デバイスのドライバ](https://github.com/renesas-rz/rza_u-boot-2015.01/tree/2015.01-rskrza1/drivers)がやってるようだ。  
+
+当たり前だけど、U-bootは自分が必要なデバイスを初期化するだけ。
+カーネルのことまでは面倒見てない。
+カーネルはカーネルで、１からデバイス初期化が必要。
 
 
 ## カーネルパラメータ
