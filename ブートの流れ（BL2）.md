@@ -140,3 +140,12 @@ zImageを(RAMの先頭+0x8000)に置くため、uImiageのロードアドレス�
 ```
 ![u-boot boot](https://github.com/mozomozo101/tech_memo/blob/master/images/IMG_1142.jpg)
 
+bootmでカーネルをブートさせる部分。
+zImageのエントリーポイントを実行してることがわかる。
+```
+// arch/arm/lib/bootm.c
+kernel_entry = (void (*)(int, int, uint))images->ep;
+...
+kernel_entry(0, machid, r2);
+```
+
