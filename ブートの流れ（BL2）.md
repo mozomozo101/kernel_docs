@@ -140,10 +140,3 @@ zImageを(RAMの先頭+0x8000)に置くため、uImiageのロードアドレス�
 ```
 ![u-boot boot](https://github.com/mozomozo101/tech_memo/blob/master/images/IMG_1142.jpg)
 
-# kernelの展開
-zImageには、[arch/arm/boot/compressed/head.S](https://github.com/torvalds/linux/blob/master/arch/arm/boot/compressed/head.S)にあるような自己解凍機能が付いてる。
-これを使ってkernelを解凍し、エントリーポイント（0xC008000など）に処理を移す・・・んだと思う。
-
-
-
-
