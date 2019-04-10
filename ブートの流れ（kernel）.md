@@ -1,6 +1,5 @@
 # kernelの展開
 u-bootのbootmコマンドは、zImageのエントリーポイントを実行することがわかった。  
-じゃあ、そのエントリーポイントはどこだろうか？ 
 
 [このページ](https://www.aandd.co.jp/dvhome/linuxsh/doc/linux-sh-kernel-bootup_J.txt)によると、zImageはこのような構成になってるようだ。  
 (arch/sh 向けのものだけど、きっとARMでも、根拠はないけど大体同じはず。）
@@ -27,7 +26,7 @@ u-bootのbootmコマンドは、zImageのエントリーポイントを実行す
 +--------------------------------+
 ```
 
-
+じゃあ、そのエントリーポイントはどこだろうか？ 
 
 
 **arch/arm/boot/compressed/vmlinux.lds.S**
@@ -65,13 +64,12 @@ start:
   #endif
 ```
 
+zImageから抽出したカーネルイメージの配置場所を決めてる。
+この結果、デフォルトでは 0x08008000（SDRAMの先頭32kb）になる。
+
 [ZRELADDR]([https://cateee.net/lkddb/web-lkddb/AUTO_ZRELADDR.html)は、zImageから抽出されたカーネルイメージが配置され物理アドレスを表す。
 TEXT_OFFSET は zImage の配置場所で、デフォルトでは RAMの先頭 0x8000（32KB）の位置。
-
-
-
-zImageには、にあるような自己解凍機能が付いてる。
-これを使ってkernelを解凍し、エントリーポイント（0xC008000など）に処理を移す・・・んだと思う。
+この後、実際にzImageを解凍していく。
 
 https://www.aandd.co.jp/dvhome/linuxsh/doc/linux-sh-kernel-bootup_J.txt  
 https://www.kernel.org/doc/Documentation/arm/Porting
