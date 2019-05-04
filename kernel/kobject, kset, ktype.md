@@ -110,7 +110,7 @@ static const char *kobject_actions[] = {
 その下のfooとかがkobject。
 その下のfooとかがkobjectが持つ属性という感じか。
 
-#　参考URL
+# 参考URL
 [1] https://www.quora.com/What-are-kernel-objects-Kobj  
 [2] http://www.infradead.org/~mchehab/kernel_docs/unsorted/kobject.html  
 [3] http://www.usupi.org/sysad/114.html  
