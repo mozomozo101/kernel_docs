@@ -6,6 +6,7 @@ https://www.creationline.com/lab/5339
 
 * メリット
   * ホストとは独立した、独自のライブラリ（libcなど）を持てる
+      * /usr/lib などは独自のものになる
   * chroot環境からは、ホストのrootfsにアクセスできない
 
 * デメリット
