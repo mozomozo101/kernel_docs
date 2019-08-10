@@ -1,3 +1,7 @@
+ATFのマニュアルのトップはここ。  
+https://github.com/ARM-software/arm-trusted-firmware/blob/master/readme.rst
+
+
 # Trusted Board Boot Requirements
 [Trusted Board Boot Requirements CLIENT](https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a)
 
