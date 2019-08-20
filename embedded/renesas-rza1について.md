@@ -16,6 +16,8 @@ https://www.renesas.com/jp/ja/products/microcontrollers-microprocessors/rz/rza/r
   * UART、i2cバスインターフェース、ethernetコントローラ、SPI,USB,GPIO など
 
 # アドレス空間
+アドレス空間（メモリ空間）は、CPUが直接アクセスできるアドレスの範囲のこと。  
+32bit OSであれば、2^32 = 4GBのアドレス空間を持つことになる。    
 RZA1のHWマニュアルでは、メモリアドレスの上位ビットによって、メモリ空間をこのように分類している。
 
 |  アドレス  |  種類  |  外部/内部  |
