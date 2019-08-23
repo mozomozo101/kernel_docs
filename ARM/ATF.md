@@ -40,3 +40,28 @@ Root Of Trustによる検証がされていないので、BL2はEL1なのかな�
 多分だけど、ここからOPTEEやu-bootを起動する（secure bootのキモみたいなもの）ので
 EL3を最高にする必要があったのかと。
 EL3相当のセキュリティレベルを確保するために、BL2によるRoot Of Trust　を使った検証が必要なんだろう。
+
+ATFリポジトリの bl* 配下はざっくりこうなってる。
+bl32のoptee内は実質空っぽ。
+ATFとはBL31のことだと思ってたけどそうじゃないのかも。
+Trusted Board Boot Requirements に基づいて実装したファームウェアのことであり、bl1〜bl32が範囲なんだろう。
+ただ、bl32については、一部をopteeが担っている。
+そんな理解で良いのかな？
+
+```
+$ tree -L 1 bl*
+bl1
+├── bl1_main.c
+bl2
+├── bl2_main.c
+bl2u
+└── bl2u_main.c
+bl31
+├── bl31_main.c
+bl32
+├── optee/
+├── sp_min/
+└── tsp/
+```
+
+
